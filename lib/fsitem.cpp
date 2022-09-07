@@ -8,9 +8,10 @@ namespace FSI
 		: m_path(path), m_parent(parent), m_relativeDirDepth(parent != nullptr ? parent->getRelativeDirDepth() + 1 : 0) {
 		m_children = std::vector<FileSystemItem*>(0);
 
+		m_size = 0;
+
 		if (!std::filesystem::exists(m_path))
 		{
-			m_size = 0;
 			m_error = FileSystemError::PATH_DOES_NOT_EXIST;
 			return;
 		}
@@ -18,7 +19,6 @@ namespace FSI
 		if (std::filesystem::status(m_path).permissions() == std::filesystem::perms::none)
 		{
 			auto a = std::filesystem::status(m_path).permissions();
-			m_size = 0;
 			m_error = FileSystemError::ACCESS_DENIED;
 			return;
 		}
@@ -37,13 +37,14 @@ namespace FSI
 				//std::cout << e.what() << std::endl;
 				// TODO : proper error handling
 			}
-
+			
+			for (const FileSystemItem* item : m_children)
+			{
+				m_size += item->getSizeInBytes();
+			}
 		}
-
+		else {
 		m_size = std::filesystem::file_size(m_path);
-		for (const FileSystemItem* item : m_children)
-		{
-			m_size += item->getSizeInBytes();
 		}
 
 		m_error = FileSystemError::NO_ERROR;

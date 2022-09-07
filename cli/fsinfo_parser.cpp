@@ -90,19 +90,16 @@ namespace FSinfoParser {
 		std::string result{};
 		const auto items = dirMode == DirMode::ALL ? fsinfo->getAllFileSystemItems(sorted) : fsinfo->getCurrentDirItems(sorted);
 
-		if (limit > 0)
+		// TODO: Improve this
+		// disable the limit so there are not to many if else
+		if (limit < 1)
 		{
-			for (size_t index = 0; index < limit && index < items.size(); index++)
-			{
-				result += getItemInfo(items.at(index), true) + "\n";
-			}
+			limit = INT_MAX;
 		}
-		else
+
+		for (size_t index = 0; index < limit && index < items.size(); index++)
 		{
-			for (size_t index = 0; index < items.size(); index++)
-			{
-				result += getItemInfo(items.at(index), true) + "\n";
-			}
+			result += getItemInfo(items.at(index), true) + "\n";
 		}
 
 		return result;

@@ -17,6 +17,12 @@ fsinfo_cli
 # sort entries by size via "-s"
 fsinfo_cli -s
 
+# print result as list or as tree view "-v". Default is "list"
+fsinfo_cli -v tree
+
+# list content of subdirectories as well with "-d". Default is "current"
+fsinfo_cli -d all
+
 # select a specific path via "-p"
 fsinfo_cli -p ~/Desktop
 

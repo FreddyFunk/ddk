@@ -20,7 +20,7 @@ namespace FSinfoParser {
 	std::string getItemInfo(const FSI::FileSystemItem* item, bool fullPath) {
 		std::string itemInfo{};
 
-		switch (item->getError())
+		switch(item->getError())
 		{
 		case FSI::FileSystemError::ACCESS_DENIED:
 			itemInfo += "ERROR: ACCESS DENIED! ";
@@ -33,7 +33,34 @@ namespace FSinfoParser {
 			break;
 		}
 
-		itemInfo += "Size: " + item->getSizeAsString() + " Name: \"";
+		itemInfo += "Size: " + item->getSizeAsString() + " ";
+		
+		itemInfo += "Type: ";
+		switch(item->getItemType()){
+		case FSI::FileSystemItemType::DIRECTORY:
+			{
+				itemInfo += "Directory ";
+				break;
+			}
+		case FSI::FileSystemItemType::REGULAR_FILE:
+			{
+				itemInfo += "File ";
+				break;
+			}
+		case FSI::FileSystemItemType::SYMLINK:
+			{
+				itemInfo += "Symlink (Hard) ";
+				break;
+			}
+		case FSI::FileSystemItemType::OTHER:
+		default:
+			{
+				itemInfo += "Other ";
+				break;
+			}
+		}
+		
+		itemInfo += "Name: \"";
 
 		if (fullPath)
 		{

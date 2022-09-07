@@ -4,11 +4,12 @@
 
 namespace FSI
 {
-	FileSystemItem::FileSystemItem(const std::filesystem::path & path, const FileSystemItem * const parent)
-		: m_path(path), m_parent(parent), m_relativeDirDepth(parent != nullptr ? parent->getRelativeDirDepth() + 1 : 0) {
+	FileSystemItem::FileSystemItem(const std::filesystem::path & path, const FileSystemItem * const parent, bool analyzeSymlinks)
+		: m_path(path), m_parent(parent), m_analyzeSymlinks(analyzeSymlinks), m_relativeDirDepth(parent != nullptr ? parent->getRelativeDirDepth() + 1 : 0) {
 		m_children = std::vector<FileSystemItem*>(0);
 
 		m_size = 0;
+		m_type = FileSystemItemType::OTHER;
 
 		if (!std::filesystem::exists(m_path))
 		{
@@ -25,26 +26,22 @@ namespace FSI
 
 		if (std::filesystem::is_directory(m_path))
 		{
-			try
-			{
-				for (const auto& directoryEntry : std::filesystem::directory_iterator(m_path)) {
-					FileSystemItem* item = new FileSystemItem(directoryEntry.path(), this);
-					m_children.push_back(item);
-				}
-			}
-			catch (const std::exception& e)
-			{
-				//std::cout << e.what() << std::endl;
-				// TODO : proper error handling
-			}
-			
-			for (const FileSystemItem* item : m_children)
-			{
-				m_size += item->getSizeInBytes();
+			m_type = FileSystemItemType::DIRECTORY;
+			analyzeChildren();
+		}
+		else if(std::filesystem::is_symlink(m_path)) {
+			m_type = FileSystemItemType::SYMLINK;
+			if(m_analyzeSymlinks){	
+				analyzeChildren();
 			}
 		}
+		else if(std::filesystem::is_regular_file(m_path)) {
+			m_type = FileSystemItemType::REGULAR_FILE;
+			m_size = std::filesystem::file_size(m_path);
+		}
 		else {
-		m_size = std::filesystem::file_size(m_path);
+			m_type = FileSystemItemType::OTHER;
+			m_size = std::filesystem::file_size(m_path);
 		}
 
 		m_error = FileSystemError::NO_ERROR;
@@ -55,6 +52,28 @@ namespace FSI
 		{
 			delete item;
 		}
+	}
+
+	bool FileSystemItem::analyzeChildren() {
+		try
+		{
+			for (const auto& directoryEntry : std::filesystem::directory_iterator(m_path)) {
+				FileSystemItem* item = new FileSystemItem(directoryEntry.path(), this, m_analyzeSymlinks);
+				m_children.push_back(item);
+			}
+		}
+		catch (const std::exception& e)
+		{
+			//std::cout << e.what() << std::endl;
+			// TODO : proper error handling
+			m_size = 0;
+			return false;
+		}
+		for (const FileSystemItem* item : m_children)
+		{
+			m_size += item->getSizeInBytes();
+		}
+		return true;
 	}
 
 	const FileSystemItem * const FileSystemItem::getParent() const {
@@ -86,6 +105,10 @@ namespace FSI
 	std::size_t FileSystemItem::getRelativeDirDepth() const
 	{
 		return m_relativeDirDepth;
+	}
+
+	FileSystemItemType FileSystemItem::getItemType() const {
+		return m_type;
 	}
 
 	std::vector<FileSystemItem*> FileSystemItem::getChildren() const {

@@ -10,7 +10,25 @@ FSinfo is a simple GUI and command line tool for file system anlysis. It acompli
 
 
 ## Usage Guide
-A complete usage guide can be found here.
+```bash
+# list all files and directories in your current working directory
+fsinfo_cli
+
+# sort entries by size via "-s"
+fsinfo_cli -s
+
+# select a specific path via "-p"
+fsinfo_cli -p ~/Desktop
+
+# limit number of items in the output via "-l"
+fsinfo_cli -l 4
+
+# include symlinks via "-symlinks". This is deactivated by default. Be careful with this option!
+fsinfo_cli -symlinks
+
+# example 1: show the 5 largest items the Downloads directory
+fsinfo_cli -p ~/Downloads -s -l 5
+```
 
 ## Build Instructions
 ### Building the command line version

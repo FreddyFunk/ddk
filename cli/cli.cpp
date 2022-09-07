@@ -130,9 +130,10 @@ int main(int argc, char* argv[]) {
 	const FSinfoParser::DirMode dirMode = getDirMode(&input);
 	const FSinfoParser::ViewMode viewMode = getViewMode(&input);
 	const bool sorted = input.cmdOptionExists("-s");
+	const bool analyzeSymLinks = input.cmdOptionExists("-symlinks");
 	const int limit = getLimit(&input);
 
-	const FSI::FileSystemInfo fsinfo(path);
+	const FSI::FileSystemInfo fsinfo(path, analyzeSymLinks);
 
 	std::cout << "Results for: " << path << std::endl;
 	printResults(&fsinfo, dirMode, viewMode, sorted, limit);

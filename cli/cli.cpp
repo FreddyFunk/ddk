@@ -26,13 +26,13 @@ static bool getPath(const InputParser* const input, std::filesystem::path& selec
 }
 
 static FSinfoParser::DirMode getDirMode(const InputParser* const input) {
-	if (!input->cmdOptionExists("-dir"))
+	if (!input->cmdOptionExists("-d"))
 	{
 		// default
 		return FSinfoParser::DirMode::CURRENT;
 	}
 
-	const std::string dirMode = input->getCmdOption("-dir");
+	const std::string dirMode = input->getCmdOption("-d");
 
 	if (dirMode == "current")
 	{
@@ -50,13 +50,13 @@ static FSinfoParser::DirMode getDirMode(const InputParser* const input) {
 }
 
 static FSinfoParser::ViewMode getViewMode(const InputParser* const input) {
-	if (!input->cmdOptionExists("-view"))
+	if (!input->cmdOptionExists("-v"))
 	{
 		// default
 		return FSinfoParser::ViewMode::LIST;
 	}
 
-	const std::string dirMode = input->getCmdOption("-view");
+	const std::string dirMode = input->getCmdOption("-v");
 
 	if (dirMode == "list")
 	{
@@ -74,7 +74,7 @@ static FSinfoParser::ViewMode getViewMode(const InputParser* const input) {
 }
 
 static int getLimit(const InputParser* const input) {
-	if (!input->cmdOptionExists("-limit"))
+	if (!input->cmdOptionExists("-l"))
 	{
 		// default
 		return -1;
@@ -82,7 +82,7 @@ static int getLimit(const InputParser* const input) {
 
 	try
 	{
-		return std::stoi(input->getCmdOption("-limit"));
+		return std::stoi(input->getCmdOption("-l"));
 	}
 	catch (const std::exception&)
 	{
@@ -129,15 +129,13 @@ int main(int argc, char* argv[]) {
 
 	const FSinfoParser::DirMode dirMode = getDirMode(&input);
 	const FSinfoParser::ViewMode viewMode = getViewMode(&input);
-	const bool sorted = input.cmdOptionExists("-sorted");
+	const bool sorted = input.cmdOptionExists("-s");
 	const int limit = getLimit(&input);
 
 	const FSI::FileSystemInfo fsinfo(path);
 
 	std::cout << "Results for: " << path << std::endl;
 	printResults(&fsinfo, dirMode, viewMode, sorted, limit);
-
-	system("pause");
 
 	return 0;
 }

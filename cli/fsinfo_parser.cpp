@@ -1,0 +1,83 @@
+#include "fsinfo_parser.hpp"
+
+namespace FSinfoParser {
+	std::string getFormattedPrefix(const FSI::FileSystemItem* item) {
+		std::string result{};
+		const std::size_t depth = item->getRelativeDirDepth();
+
+		result += "|";
+
+		for (size_t i = 1; i < depth; i++)
+		{
+			result += "---";
+		}
+
+		result += "> ";
+
+		return result;
+	}
+
+	std::string getItemInfo(const FSI::FileSystemItem* item, bool fullPath) {
+		std::string itemInfo{};
+
+		switch (item->getError())
+		{
+		case FSI::FileSystemError::ACCESS_DENIED:
+			itemInfo += "ERROR: ACCESS DENIED! ";
+			break;
+		case FSI::FileSystemError::PATH_DOES_NOT_EXIST:
+			itemInfo += "ERROR: PATH DOES NOT EXIST! ";
+			break;
+		case FSI::FileSystemError::NO_ERROR:
+		default:
+			break;
+		}
+
+		itemInfo += "Size: " + item->getSizeAsString() + " Name: \"";
+
+		if (fullPath)
+		{
+			itemInfo += item->getPathAsString() + "\"";
+		}
+		else
+		{
+			itemInfo += item->getItemName() + "\"";
+		}
+
+		return itemInfo;
+	}
+
+
+	std::string FSinfoToStringAsTree(const FSI::FileSystemInfo* const fsinfo) {
+		std::string result{};
+
+		for (const FSI::FileSystemItem* item : fsinfo->getAllFileSystemItems())
+		{
+			result += getFormattedPrefix(item) + getItemInfo(item) + "\n";
+		}
+
+		return result;
+	}
+
+	std::string FSinfoToStringAsList(const FSI::FileSystemInfo* const fsinfo, DirMode dirMode, int limit, bool sorted) {
+		std::string result{};
+		const auto items = dirMode == DirMode::ALL ? fsinfo->getAllFileSystemItems(sorted) : fsinfo->getCurrentDirItems(sorted);
+
+		if (limit > 0)
+		{
+			for (size_t index = 0; index < limit && index < items.size(); index++)
+			{
+				result += getItemInfo(items.at(index), true) + "\n";
+			}
+		}
+		else
+		{
+			for (size_t index = 0; index < items.size(); index++)
+			{
+				result += getItemInfo(items.at(index), true) + "\n";
+			}
+		}
+
+		return result;
+	}
+}

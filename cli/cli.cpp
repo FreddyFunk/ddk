@@ -1,85 +1,141 @@
 #include <iostream>
-#include <fsinfo.hpp>
+#include "fsinfo_parser.hpp"
+#include "input_params_parser.hpp"
 
-static std::string getFormattedPrefix(const FileSystemItem* item) {
-	std::string result{};
-	std::size_t depth = item->getRelativeDirDepth();
-
-	result += "|";
-
-	for (size_t i = 1; i < depth; i++)
-	{
-		result += "---";
-	}
-
-	result += "> ";
-
-	return result;
+static void printHelpOption() {
+	std::cout << "How to use FileSystemInfo:" << std::endl;
 }
 
-static std::string getItemInfo(const FileSystemItem* item, bool fullPath = false) {
-	std::string itemInfo{};
-
-	switch (item->getError())
-	{
-	case FileSystemError::ACCESS_DENIED:
-		itemInfo += "ERROR: ACCESS DENIED! ";
-		break;
-	case FileSystemError::PATH_DOES_NOT_EXIST:
-		itemInfo += "ERROR: PATH DOES NOT EXIST! ";
-		break;
-	case FileSystemError::NO_ERROR:
-	default:
-		break;
-	}
-
-	itemInfo += "Size: " + item->getSizeAsString() + " Name: \"";
-	
-	if (fullPath)
-	{
-		itemInfo += item->getPathAsString() + "\"";
+static bool getPath(const InputParser* const input, std::filesystem::path& selectedPath) {
+	if (input->cmdOptionExists("-p")) {
+		const std::string& directory = input->getCmdOption("-p");
+		if (!directory.empty()) {
+			selectedPath = std::filesystem::path(directory);
+		}
+		else
+		{
+			return false;
+		}
 	}
 	else
 	{
-		itemInfo += item->getItemName() + "\"";
+		selectedPath = std::filesystem::current_path();
 	}
 
-	return itemInfo;
+	return true;
 }
 
+static FSinfoParser::DirMode getDirMode(const InputParser* const input) {
+	if (!input->cmdOptionExists("-dir"))
+	{
+		// default
+		return FSinfoParser::DirMode::CURRENT;
+	}
 
-std::string FSitemListToStringAsTree(const std::vector<FileSystemItem*>& items) {
+	const std::string dirMode = input->getCmdOption("-dir");
+
+	if (dirMode == "current")
+	{
+		return FSinfoParser::DirMode::CURRENT;
+	}
+	else if (dirMode == "all")
+	{
+		return FSinfoParser::DirMode::ALL;
+	}
+	else
+	{
+		// default
+		return FSinfoParser::DirMode::CURRENT;
+	}
+}
+
+static FSinfoParser::ViewMode getViewMode(const InputParser* const input) {
+	if (!input->cmdOptionExists("-view"))
+	{
+		// default
+		return FSinfoParser::ViewMode::LIST;
+	}
+
+	const std::string dirMode = input->getCmdOption("-view");
+
+	if (dirMode == "list")
+	{
+		return FSinfoParser::ViewMode::LIST;
+	}
+	else if (dirMode == "tree")
+	{
+		return FSinfoParser::ViewMode::TREE;
+	}
+	else
+	{
+		// default
+		return FSinfoParser::ViewMode::LIST;
+	}
+}
+
+static int getLimit(const InputParser* const input) {
+	if (!input->cmdOptionExists("-limit"))
+	{
+		// default
+		return -1;
+	}
+
+	try
+	{
+		return std::stoi(input->getCmdOption("-limit"));
+	}
+	catch (const std::exception&)
+	{
+		return -1;
+	}
+}
+
+static void printResults(const FSI::FileSystemInfo* const fsinfo, FSinfoParser::DirMode dirMode, FSinfoParser::ViewMode viewMode, bool sorted, int limit) {
 	std::string result{};
 
-	for (const FileSystemItem* item : items)
+	switch (viewMode)
 	{
-		result += getFormattedPrefix(item) + getItemInfo(item) + "\n";
+	case FSinfoParser::ViewMode::TREE:
+		result = FSinfoParser::FSinfoToStringAsTree(fsinfo);
+		break;
+	case FSinfoParser::ViewMode::LIST:
+	default:
+		result = FSinfoParser::FSinfoToStringAsList(fsinfo, dirMode, limit, sorted);
+		break;
 	}
 
-	return result;
+	std::cout << result << std::endl;
 }
 
-std::string FSitemListToStringAsList(const std::vector<FileSystemItem*>& items, std::size_t limit) {
-	std::string result{};
+int main(int argc, char* argv[]) {
+	const InputParser input(argc, argv);
 
-	for (size_t index = 0; index < limit && index < items.size(); index++)
-	{
-		result += getItemInfo(items.at(index), true) + "\n";
+	if (input.cmdOptionExists("-h") || input.cmdOptionExists("--help")) {
+		printHelpOption();
+		return 0;
 	}
 
-	return result;
-}
+	std::filesystem::path path;
+	if (!getPath(&input, path))
+	{
+		std::cout << "ERROR: Custom path was choosen (\"-p\"), but no path was providen." << std::endl;
+		return 1;
+	}
+	if (!std::filesystem::exists(path))
+	{
+		std::cout << "ERROR: Custom path \"" << path << "\" does not exists." << std::endl;
+		return 1;
+	}
 
-int main() {
+	const FSinfoParser::DirMode dirMode = getDirMode(&input);
+	const FSinfoParser::ViewMode viewMode = getViewMode(&input);
+	const bool sorted = input.cmdOptionExists("-sorted");
+	const int limit = getLimit(&input);
 
-	const std::filesystem::path path = std::filesystem::current_path();
-	//const std::filesystem::path path("d:");
-
-	FileSystemInfo fsinfo(path);
+	const FSI::FileSystemInfo fsinfo(path);
 
 	std::cout << "Results for: " << path << std::endl;
-	//std::cout << FSitemListToStringAsTree(fsinfo.getAllFileSystemItems()) << std::endl;
-	std::cout << FSitemListToStringAsList(fsinfo.getAllFileSystemItemsSortedBySize(), 10) << std::endl;
+	printResults(&fsinfo, dirMode, viewMode, sorted, limit);
 
 	system("pause");
 

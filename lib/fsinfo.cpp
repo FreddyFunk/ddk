@@ -2,38 +2,56 @@
 
 #include "fsinfo.hpp"
 
-FileSystemInfo::FileSystemInfo(const std::filesystem::path & path) {
-	m_anker = new FileSystemItem(path, nullptr);
-}
-
-FileSystemInfo::~FileSystemInfo() {
-	delete m_anker;
-}
-
-std::vector<FileSystemItem*> FileSystemInfo::getFileSystemItemsRecursive(const FileSystemItem * const item) const {
-	std::vector<FileSystemItem*> items(0);
-
-	for (FileSystemItem* const fsitem : item->getChildren())
-	{
-		items.push_back(fsitem);
-		std::vector<FileSystemItem*> children = getFileSystemItemsRecursive(fsitem);
-		items.insert(items.end(), children.begin(), children.end());
+namespace FSI
+{
+	FileSystemInfo::FileSystemInfo(const std::filesystem::path& path) {
+		m_anker = new FileSystemItem(path, nullptr);
 	}
 
-	return items;
-}
+	FileSystemInfo::~FileSystemInfo() {
+		delete m_anker;
+	}
 
-std::vector<FileSystemItem*> FileSystemInfo::getAllFileSystemItems() const {
-	return getFileSystemItemsRecursive(m_anker);
-}
+	std::vector<FileSystemItem*> FileSystemInfo::getFileSystemItemsRecursive(const FileSystemItem* const item) const {
+		std::vector<FileSystemItem*> items(0);
 
-std::vector<FileSystemItem*> FileSystemInfo::getAllFileSystemItemsSortedBySize() const {
-	std::vector<FileSystemItem*> items = getAllFileSystemItems();
-
-	std::sort(items.begin(), items.end(), [](const auto lhs, const auto rhs)
+		for (FileSystemItem* const fsitem : item->getChildren())
 		{
-			return lhs->getSizeInBytes() > rhs->getSizeInBytes();
-		});
+			items.push_back(fsitem);
+			std::vector<FileSystemItem*> children = getFileSystemItemsRecursive(fsitem);
+			items.insert(items.end(), children.begin(), children.end());
+		}
 
-	return items;
+		return items;
+	}
+
+	void FileSystemInfo::sortFSitemsBySize(std::vector<FileSystemItem*>& items) const {
+		std::sort(items.begin(), items.end(), [](const auto lhs, const auto rhs)
+			{
+				return lhs->getSizeInBytes() > rhs->getSizeInBytes();
+			});
+	}
+
+	std::vector<FileSystemItem*> FileSystemInfo::getCurrentDirItems(bool sortedBySize) const
+	{
+		std::vector<FileSystemItem*> items = m_anker->getChildren();
+
+		if (sortedBySize)
+		{
+			sortFSitemsBySize(items);
+		}
+
+		return items;
+	}
+
+	std::vector<FileSystemItem*> FileSystemInfo::getAllFileSystemItems(bool sortedBySize) const {
+		std::vector<FileSystemItem*> items = getFileSystemItemsRecursive(m_anker);
+
+		if (sortedBySize)
+		{
+			sortFSitemsBySize(items);
+		}
+
+		return items;
+	}
 }

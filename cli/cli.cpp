@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include "fsinfo_parser.hpp"
 #include "input_params_parser.hpp"
@@ -7,20 +8,20 @@ static void printHelpOption() {
 }
 
 static bool getPath(const InputParser* const input, std::filesystem::path& selectedPath) {
-	if (input->cmdOptionExists("-p")) {
-		const std::string& directory = input->getCmdOption("-p");
-		if (!directory.empty()) {
-			selectedPath = std::filesystem::path(directory);
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else
-	{
+	if (!input->cmdOptionExists("-p")) {
 		selectedPath = std::filesystem::current_path();
+		return true;
 	}
+	std::string path = input->getCmdOption("-p");
+	if (path.empty()) {
+		return false;
+	}
+	const auto tilde = path.find('~');
+	if (tilde != std::string::npos){
+		const std::string home = std::getenv("HOME");
+		path.replace(tilde, 1, home);
+	}
+	selectedPath = std::filesystem::path(path);
 
 	return true;
 }
@@ -123,7 +124,7 @@ int main(int argc, char* argv[]) {
 	}
 	if (!std::filesystem::exists(path))
 	{
-		std::cout << "ERROR: Custom path \"" << path << "\" does not exists." << std::endl;
+		std::cout << "ERROR: Custom path " << path << " does not exists." << std::endl;
 		return 1;
 	}
 

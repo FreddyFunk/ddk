@@ -86,9 +86,9 @@ namespace FSinfoParser {
 		return result;
 	}
 
-	std::string FSinfoToStringAsList(const FSI::FileSystemInfo* const fsinfo, DirMode dirMode, int limit, bool sorted) {
+	std::string FSinfoToStringAsList(const FSI::FileSystemInfo* const fsinfo, OutputMode outputMode, int limit, bool sorted) {
 		std::string result{};
-		const auto items = dirMode == DirMode::ALL ? fsinfo->getAllFileSystemItems(sorted) : fsinfo->getCurrentDirItems(sorted);
+		const auto items = outputMode == OutputMode::ALL ? fsinfo->getAllFileSystemItems(sorted) : fsinfo->getCurrentDirItems(sorted);
 
 		// TODO: Improve this
 		// disable the limit so there are not to many if else

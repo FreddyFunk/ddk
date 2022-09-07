@@ -20,8 +20,8 @@ fsinfo_cli -s
 # print result as list or as tree view "-v". Default is "list"
 fsinfo_cli -v tree
 
-# list content of subdirectories as well with "-d". Default is "current"
-fsinfo_cli -d all
+# output content of subdirectories as well with "-o". Default is "current"
+fsinfo_cli -o all
 
 # select a specific path via "-p"
 fsinfo_cli -p ~/Desktop
@@ -30,7 +30,7 @@ fsinfo_cli -p ~/Desktop
 fsinfo_cli -l 4
 
 # include symlinks via "-symlinks". This is deactivated by default. Be careful with this option!
-fsinfo_cli -symlinks
+fsinfo_cli --include-symlinks
 
 # example 1: show the 5 largest items the Downloads directory
 fsinfo_cli -p ~/Downloads -s -l 5

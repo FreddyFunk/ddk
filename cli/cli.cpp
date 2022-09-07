@@ -26,27 +26,27 @@ static bool getPath(const InputParser* const input, std::filesystem::path& selec
 	return true;
 }
 
-static FSinfoParser::DirMode getDirMode(const InputParser* const input) {
-	if (!input->cmdOptionExists("-d"))
+static FSinfoParser::OutputMode getOutputMode(const InputParser* const input) {
+	if (!input->cmdOptionExists("-o"))
 	{
 		// default
-		return FSinfoParser::DirMode::CURRENT;
+		return FSinfoParser::OutputMode::CURRENT;
 	}
 
-	const std::string dirMode = input->getCmdOption("-d");
+	const std::string outputMode = input->getCmdOption("-o");
 
-	if (dirMode == "current")
+	if (outputMode == "current")
 	{
-		return FSinfoParser::DirMode::CURRENT;
+		return FSinfoParser::OutputMode::CURRENT;
 	}
-	else if (dirMode == "all")
+	else if (outputMode == "all")
 	{
-		return FSinfoParser::DirMode::ALL;
+		return FSinfoParser::OutputMode::ALL;
 	}
 	else
 	{
 		// default
-		return FSinfoParser::DirMode::CURRENT;
+		return FSinfoParser::OutputMode::CURRENT;
 	}
 }
 
@@ -57,13 +57,13 @@ static FSinfoParser::ViewMode getViewMode(const InputParser* const input) {
 		return FSinfoParser::ViewMode::LIST;
 	}
 
-	const std::string dirMode = input->getCmdOption("-v");
+	const std::string outputMode = input->getCmdOption("-v");
 
-	if (dirMode == "list")
+	if (outputMode == "list")
 	{
 		return FSinfoParser::ViewMode::LIST;
 	}
-	else if (dirMode == "tree")
+	else if (outputMode == "tree")
 	{
 		return FSinfoParser::ViewMode::TREE;
 	}
@@ -91,7 +91,7 @@ static int getLimit(const InputParser* const input) {
 	}
 }
 
-static void printResults(const FSI::FileSystemInfo* const fsinfo, FSinfoParser::DirMode dirMode, FSinfoParser::ViewMode viewMode, bool sorted, int limit) {
+static void printResults(const FSI::FileSystemInfo* const fsinfo, FSinfoParser::OutputMode outputMode, FSinfoParser::ViewMode viewMode, bool sorted, int limit) {
 	std::string result{};
 
 	switch (viewMode)
@@ -101,7 +101,7 @@ static void printResults(const FSI::FileSystemInfo* const fsinfo, FSinfoParser::
 		break;
 	case FSinfoParser::ViewMode::LIST:
 	default:
-		result = FSinfoParser::FSinfoToStringAsList(fsinfo, dirMode, limit, sorted);
+		result = FSinfoParser::FSinfoToStringAsList(fsinfo, outputMode, limit, sorted);
 		break;
 	}
 
@@ -128,16 +128,16 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	const FSinfoParser::DirMode dirMode = getDirMode(&input);
+	const FSinfoParser::OutputMode outputMode = getOutputMode(&input);
 	const FSinfoParser::ViewMode viewMode = getViewMode(&input);
 	const bool sorted = input.cmdOptionExists("-s");
-	const bool analyzeSymLinks = input.cmdOptionExists("-symlinks");
+	const bool analyzeSymLinks = input.cmdOptionExists("--include-symlinks");
 	const int limit = getLimit(&input);
 
 	const FSI::FileSystemInfo fsinfo(path, analyzeSymLinks);
 
 	std::cout << "Results for: " << path << std::endl;
-	printResults(&fsinfo, dirMode, viewMode, sorted, limit);
+	printResults(&fsinfo, outputMode, viewMode, sorted, limit);
 
 	return 0;
 }

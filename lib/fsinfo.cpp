@@ -34,9 +34,20 @@ namespace FSI
 			});
 	}
 
-	std::vector<FileSystemItem*> FileSystemInfo::getCurrentDirItems(bool sortedBySize) const
+	void FileSystemInfo::filterOnlyFiles(std::vector<FileSystemItem*>& items) const {	
+		items.erase(std::remove_if(items.begin(), items.end(),
+		[](const FileSystemItem* fsi) { return fsi->getItemType() != FileSystemItemType::REGULAR_FILE; }),
+		items.end());
+	}
+
+	std::vector<FileSystemItem*> FileSystemInfo::getCurrentDirItems(bool sortedBySize, bool onlyFiles) const
 	{
 		std::vector<FileSystemItem*> items = m_anker->getChildren();
+
+		if (onlyFiles)
+		{
+			filterOnlyFiles(items);
+		}
 
 		if (sortedBySize)
 		{
@@ -46,8 +57,13 @@ namespace FSI
 		return items;
 	}
 
-	std::vector<FileSystemItem*> FileSystemInfo::getAllFileSystemItems(bool sortedBySize) const {
+	std::vector<FileSystemItem*> FileSystemInfo::getAllFileSystemItems(bool sortedBySize, bool onlyFiles) const {
 		std::vector<FileSystemItem*> items = getFileSystemItemsRecursive(m_anker);
+
+		if (onlyFiles)
+		{
+			filterOnlyFiles(items);
+		}
 
 		if (sortedBySize)
 		{
@@ -71,6 +87,10 @@ namespace FSI
 
 	std::size_t FileSystemInfo::getFilesCount() const {
 		return m_anker->getChildFilesCount();
+	}
+
+	std::uintmax_t FileSystemInfo::getTotalSize() const {
+		return m_anker->getSizeInBytes();
 	}
 
 	bool FileSystemInfo::symlinks() const {

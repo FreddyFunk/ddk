@@ -100,9 +100,9 @@ namespace FSinfoParser {
 		return result;
 	}
 
-	std::string FSinfoToStringAsList(const FSI::FileSystemInfo* const fsinfo, OutputMode outputMode, int limit, bool sorted) {
+	std::string FSinfoToStringAsList(const FSI::FileSystemInfo* const fsinfo, OutputMode outputMode, int limit, bool sorted, bool onlyFiles) {
 		std::string result{};
-		const auto items = outputMode == OutputMode::ALL ? fsinfo->getAllFileSystemItems(sorted) : fsinfo->getCurrentDirItems(sorted);
+		const auto items = outputMode == OutputMode::ALL ? fsinfo->getAllFileSystemItems(sorted, onlyFiles) : fsinfo->getCurrentDirItems(sorted, onlyFiles);
 
 		// TODO: Improve this
 		// disable the limit so there are not to many if else
@@ -139,6 +139,8 @@ namespace FSinfoParser {
 			result += "Analyzed symlinks: " + std::to_string(fsinfo->getSymlinksCount()) + "\n";
 		}
 		
+		result += "Total size: " + humanReadableSize(fsinfo->getTotalSize()) + "\n";
+
 		return result;
 	}
 }

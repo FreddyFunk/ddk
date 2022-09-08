@@ -23,13 +23,16 @@ fsinfo_cli -v tree
 # output content of subdirectories as well with "-o". Default is "current"
 fsinfo_cli -o all
 
+# output only files and no subdirectories. Only works in list view mode.
+fsinfo_cli --only-files
+
 # select a specific path via "-p"
 fsinfo_cli -p ~/Desktop
 
 # limit number of items in the output via "-l"
 fsinfo_cli -l 4
 
-# include symlinks via "-symlinks". This is deactivated by default. Be careful with this option!
+# include symlinks. This is deactivated by default. Be careful with this option!
 fsinfo_cli --include-symlinks
 
 # example 1: show the 5 largest items the Downloads directory

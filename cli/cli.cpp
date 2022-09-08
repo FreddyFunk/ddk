@@ -91,7 +91,7 @@ static int getLimit(const InputParser* const input) {
 	}
 }
 
-static void printResults(const FSI::FileSystemInfo* const fsinfo, FSinfoParser::OutputMode outputMode, FSinfoParser::ViewMode viewMode, bool sorted, int limit) {
+static void printResults(const FSI::FileSystemInfo* const fsinfo, FSinfoParser::OutputMode outputMode, FSinfoParser::ViewMode viewMode, bool sorted, int limit, bool onlyFiles) {
 	std::string result{};
 
 	switch (viewMode)
@@ -101,7 +101,7 @@ static void printResults(const FSI::FileSystemInfo* const fsinfo, FSinfoParser::
 		break;
 	case FSinfoParser::ViewMode::LIST:
 	default:
-		result = FSinfoParser::FSinfoToStringAsList(fsinfo, outputMode, limit, sorted);
+		result = FSinfoParser::FSinfoToStringAsList(fsinfo, outputMode, limit, sorted, onlyFiles);
 		break;
 	}
 
@@ -132,6 +132,7 @@ int main(int argc, char* argv[]) {
 	const FSinfoParser::ViewMode viewMode = getViewMode(&input);
 	const bool sorted = input.cmdOptionExists("-s");
 	const bool analyzeSymLinks = input.cmdOptionExists("--include-symlinks");
+	const bool onlyFiles = input.cmdOptionExists("--only-files");
 	const int limit = getLimit(&input);
 
 	const FSI::FileSystemInfo fsinfo(path, analyzeSymLinks);
@@ -140,7 +141,7 @@ int main(int argc, char* argv[]) {
 	std::cout << FSinfoParser::FSMetaData(&fsinfo) << std::endl;
 	std::cout << FSinfoParser::summary(&fsinfo) << std::endl;
 	
-	printResults(&fsinfo, outputMode, viewMode, sorted, limit);
+	printResults(&fsinfo, outputMode, viewMode, sorted, limit, onlyFiles);
 
 	return 0;
 }

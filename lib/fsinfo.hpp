@@ -11,6 +11,10 @@ namespace FSI
 		std::vector<FileSystemItem*> getCurrentDirItems(bool sortedBySize = false) const;
 		std::vector<FileSystemItem*> getAllFileSystemItems(bool sortedBySize = false) const;
 		std::filesystem::space_info getSpaceInfo() const;
+		std::size_t getDirectoriesCount() const;
+		std::size_t getSymlinksCount() const;
+		std::size_t getFilesCount() const;
+		bool symlinks() const;
 
 	private:
 		const FileSystemItem* m_anker;

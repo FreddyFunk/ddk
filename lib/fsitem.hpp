@@ -30,10 +30,12 @@ namespace FSI
 		std::size_t getRelativeDirDepth() const;
 		FileSystemItemType getItemType() const;
 		std::uintmax_t getSizeInBytes() const;
-		std::string getSizeAsString() const;
 		std::string getItemName() const;
 		std::string getPathAsString() const;
 		FileSystemError getError() const;
+		std::size_t getChildFilesCount() const;
+		std::size_t getChildSubDirectoriesCount() const;
+		std::size_t getChildSymlinksCount() const;
 		std::vector<FileSystemItem*> getChildren() const;
 
 	private:
@@ -45,6 +47,9 @@ namespace FSI
 		const bool m_analyzeSymlinks;
 		FileSystemItemType m_type;
 		std::uintmax_t m_size;
+		std::size_t m_childFilesCount;
+		std::size_t m_childSubDirectoriesCount;
+		std::size_t m_childSymlinksCount;
 		std::vector<FileSystemItem*> m_children;
 		FileSystemError m_error;
 

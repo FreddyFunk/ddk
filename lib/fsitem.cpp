@@ -9,6 +9,10 @@ namespace FSI
 		m_children = std::vector<FileSystemItem*>(0);
 
 		m_size = 0;
+		m_childFilesCount = 0;
+		m_childSubDirectoriesCount = 0;
+		m_childSymlinksCount = 0;
+
 		m_type = FileSystemItemType::OTHER;
 
 		if (!std::filesystem::exists(m_path))
@@ -72,6 +76,32 @@ namespace FSI
 		for (const FileSystemItem* item : m_children)
 		{
 			m_size += item->getSizeInBytes();
+
+			switch (item->getItemType()){
+				case FileSystemItemType::DIRECTORY:
+				{
+					m_childSubDirectoriesCount += 1 + item->m_childSubDirectoriesCount;
+					m_childFilesCount += 1 + item->m_childFilesCount;
+					m_childSymlinksCount += 1 + item->m_childSymlinksCount;
+					break;
+				}
+				case FileSystemItemType::REGULAR_FILE:
+				{
+					m_childFilesCount++;
+					break;
+				}
+				case FileSystemItemType::SYMLINK:
+				{
+					m_childSubDirectoriesCount += 1 + item->m_childSubDirectoriesCount;
+					m_childFilesCount += 1 + item->m_childFilesCount;
+					m_childSymlinksCount += 1 + item->m_childSymlinksCount;
+					break;
+				}
+				default:
+				{
+					break;
+				}
+			}
 		}
 		return true;
 	}
@@ -127,5 +157,20 @@ namespace FSI
 	FileSystemError FileSystemItem::getError() const
 	{
 		return m_error;
+	}
+
+	std::size_t FileSystemItem::getChildFilesCount() const
+	{
+		return m_childFilesCount;
+	}
+
+	std::size_t FileSystemItem::getChildSubDirectoriesCount() const
+	{
+		return m_childSubDirectoriesCount;
+	}
+
+	std::size_t FileSystemItem::getChildSymlinksCount() const
+	{
+		return m_childSymlinksCount;
 	}
 }

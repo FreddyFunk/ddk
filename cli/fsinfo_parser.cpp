@@ -118,4 +118,27 @@ namespace FSinfoParser {
 
 		return result;
 	}
+
+	std::string FSMetaData(const FSI::FileSystemInfo* const fsinfo) {
+		std::string result{};
+
+		result += "Capacity: " + humanReadableSize(fsinfo->getSpaceInfo().capacity) + "\n";
+		result += "Free space: " + humanReadableSize(fsinfo->getSpaceInfo().free) + "\n";
+		result += "Available space for a non-priviliged process: " + humanReadableSize(fsinfo->getSpaceInfo().available) + "\n";
+	
+		return result;
+	}
+
+	std::string summary(const FSI::FileSystemInfo* const fsinfo) {
+		std::string result{};
+
+		result += "Analyzed files: " + std::to_string(fsinfo->getFilesCount()) + "\n";
+		result += "Analyzed directories: " + std::to_string(fsinfo->getDirectoriesCount()) + "\n";
+		
+		if (fsinfo->symlinks()) {
+			result += "Analyzed symlinks: " + std::to_string(fsinfo->getSymlinksCount()) + "\n";
+		}
+		
+		return result;
+	}
 }

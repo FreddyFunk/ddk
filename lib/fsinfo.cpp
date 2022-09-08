@@ -60,4 +60,20 @@ namespace FSI
 	std::filesystem::space_info FileSystemInfo::getSpaceInfo() const {
 		return m_spaceInfo;
 	}
+
+	std::size_t FileSystemInfo::getDirectoriesCount() const {
+		return m_anker->getChildSubDirectoriesCount();
+	}
+
+	std::size_t FileSystemInfo::getSymlinksCount() const {
+		return m_anker->getChildSymlinksCount();
+	}
+
+	std::size_t FileSystemInfo::getFilesCount() const {
+		return m_anker->getChildFilesCount();
+	}
+
+	bool FileSystemInfo::symlinks() const {
+		return m_analyzeSymLinks;
+	}
 }

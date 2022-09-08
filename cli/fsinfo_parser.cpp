@@ -1,6 +1,20 @@
 #include "fsinfo_parser.hpp"
+#include <sstream>
+#include <cmath>
 
 namespace FSinfoParser {
+	std::string humanReadableSize(std::uintmax_t size){
+		double mantissa = size;
+		int i = 0;
+		for (; mantissa >= 1024.0; ++i){
+			mantissa /= 1024.0;
+		}
+		mantissa = std::ceil(mantissa * 10.0) / 10.0;
+		std::stringstream stream;
+		stream << mantissa << " " << "BKMGTPE"[i] << (i == 0 ? "" : "B");
+		return stream.str();
+	}
+
 	std::string getFormattedPrefix(const FSI::FileSystemItem* item) {
 		std::string result{};
 		const std::size_t depth = item->getRelativeDirDepth();
@@ -33,7 +47,7 @@ namespace FSinfoParser {
 			break;
 		}
 
-		itemInfo += "Size: " + item->getSizeAsString() + " ";
+		itemInfo += "Size: " + humanReadableSize(item->getSizeInBytes()) + " ";
 		
 		itemInfo += "Type: ";
 		switch(item->getItemType()){

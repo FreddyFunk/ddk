@@ -4,7 +4,9 @@
 
 namespace FSI
 {
-	FileSystemInfo::FileSystemInfo(const std::filesystem::path& path, bool analyzeSymLinks) : m_analyzeSymLinks(analyzeSymLinks) {
+	FileSystemInfo::FileSystemInfo(const std::filesystem::path& path, bool analyzeSymLinks) : m_analyzeSymLinks(analyzeSymLinks),
+	m_spaceInfo(std::filesystem::space(path))
+	{
 		m_anker = new FileSystemItem(path, nullptr, m_analyzeSymLinks);
 	}
 
@@ -53,5 +55,9 @@ namespace FSI
 		}
 
 		return items;
+	}
+
+	std::filesystem::space_info FileSystemInfo::getSpaceInfo() const {
+		return m_spaceInfo;
 	}
 }

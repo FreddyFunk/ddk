@@ -12,7 +12,8 @@ namespace FSinfoParser {
 		LIST,
 		TREE,
 	};
-
+	
+	std::string humanReadableSize(std::uintmax_t size);
 	std::string getFormattedPrefix(const FSI::FileSystemItem* item);
 	std::string getItemInfo(const FSI::FileSystemItem* item, bool fullPath = false);
 	std::string FSinfoToStringAsTree(const FSI::FileSystemInfo* const fsinfo);

@@ -137,6 +137,9 @@ int main(int argc, char* argv[]) {
 	const FSI::FileSystemInfo fsinfo(path, analyzeSymLinks);
 
 	std::cout << "Results for: " << path << std::endl;
+	std::cout << "Capacity: " << FSinfoParser::humanReadableSize(fsinfo.getSpaceInfo().capacity) << std::endl;
+	std::cout << "Free space: " << FSinfoParser::humanReadableSize(fsinfo.getSpaceInfo().free) << std::endl;
+	std::cout << "Available space for a non-priviliged process: " << FSinfoParser::humanReadableSize(fsinfo.getSpaceInfo().available) << std::endl;
 	printResults(&fsinfo, outputMode, viewMode, sorted, limit);
 
 	return 0;

@@ -84,20 +84,6 @@ namespace FSI
 		return m_size;
 	}
 
-	std::string FileSystemItem::getSizeAsString() const {
-		double size = static_cast<double>(m_size);
-
-		std::size_t sizeNameIndex = 0;
-		const std::array<std::string, 5> sizeNames{ std::string("Bytes"), std::string("KB"), std::string("MB"), std::string("GB"), std::string("TB") };
-		while (size / 1024.0 >= 1.0 && sizeNameIndex < sizeNames.size())
-		{
-			size /= 1024.0;
-			sizeNameIndex++;
-		}
-
-		return ((std::to_string(size) + " ") + sizeNames[sizeNameIndex]);
-	}
-
 	std::filesystem::path FileSystemItem::getPath() const {
 		return m_path;
 	}

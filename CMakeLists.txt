@@ -1,11 +1,6 @@
-cmake_minimum_required(VERSION 3.9...3.14)
+cmake_minimum_required(VERSION 3.12...3.24)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-# CMake versions older than 3.12 do not support version range
-if(${CMAKE_VERSION} VERSION_LESS 3.12)
-    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-endif()
 
 project(FSinfo VERSION 1.0.0
                   DESCRIPTION "File System Info"
@@ -36,6 +31,8 @@ function(replicate_directory_structure target_name)
         source_group("${group_name}" FILES "${file_name}")
     endforeach()
 endfunction()
+
+find_package(fmt 9.1.0 REQUIRED CONFIG)
 
 add_subdirectory(lib)
 add_subdirectory(cli)

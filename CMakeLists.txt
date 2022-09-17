@@ -33,5 +33,4 @@ function(replicate_directory_structure target_name)
 endfunction()
 
 add_subdirectory(externals)
-add_subdirectory(lib)
-add_subdirectory(cli)
+add_subdirectory(src)

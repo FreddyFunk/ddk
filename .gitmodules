@@ -22,3 +22,6 @@
 [submodule "externals/FFmpeg"]
 	path = externals/FFmpeg
 	url = https://github.com/FFmpeg/FFmpeg.git
+[submodule "externals/fmt"]
+	path = externals/fmt
+	url = https://github.com/fmtlib/fmt.git

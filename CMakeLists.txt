@@ -32,9 +32,6 @@ function(replicate_directory_structure target_name)
     endforeach()
 endfunction()
 
-find_package(fmt 9.1.0 REQUIRED CONFIG)
-
+add_subdirectory(externals)
 add_subdirectory(lib)
 add_subdirectory(cli)
-
-target_link_libraries(fsinfo_cli PRIVATE fsinfo_lib)

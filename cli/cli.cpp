@@ -1,10 +1,10 @@
 #include <algorithm>
-#include <iostream>
+#include <fmt/core.h>
 #include "fsinfo_parser.hpp"
 #include "input_params_parser.hpp"
 
 static void printHelpOption() {
-	std::cout << "How to use FileSystemInfo:" << std::endl;
+	fmt::print("How to use FileSystemInfo:\n");
 }
 
 static bool getPath(const InputParser* const input, std::filesystem::path& selectedPath) {
@@ -105,7 +105,7 @@ static void printResults(const FSI::FileSystemInfo* const fsinfo, FSinfoParser::
 		break;
 	}
 
-	std::cout << result << std::endl;
+	fmt::print("{}\n", result);
 }
 
 int main(int argc, char* argv[]) {
@@ -119,12 +119,12 @@ int main(int argc, char* argv[]) {
 	std::filesystem::path path;
 	if (!getPath(&input, path))
 	{
-		std::cout << "ERROR: Custom path was choosen (\"-p\"), but no path was providen." << std::endl;
+		fmt::print("ERROR: Custom path was choosen (\"-p\"), but no path was providen.\n");
 		return 1;
 	}
 	if (!std::filesystem::exists(path))
 	{
-		std::cout << "ERROR: Custom path " << path << " does not exists." << std::endl;
+		fmt::print("ERROR: Custom path {} does not exists.\n", path.string());
 		return 1;
 	}
 
@@ -137,9 +137,9 @@ int main(int argc, char* argv[]) {
 
 	const FSI::FileSystemInfo fsinfo(path, analyzeSymLinks);
 
-	std::cout << "Results for: " << path << std::endl;
-	std::cout << FSinfoParser::FSMetaData(&fsinfo) << std::endl;
-	std::cout << FSinfoParser::summary(&fsinfo) << std::endl;
+	fmt::print("Results for: {}\n", path.string());
+	fmt::print("{}\n", FSinfoParser::FSMetaData(&fsinfo));
+	fmt::print("{}\n", FSinfoParser::summary(&fsinfo));
 	
 	printResults(&fsinfo, outputMode, viewMode, sorted, limit, onlyFiles);
 

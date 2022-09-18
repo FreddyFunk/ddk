@@ -6,7 +6,9 @@ namespace FSI
 {
 	FileSystemItem::FileSystemItem(const std::filesystem::path & path, const FileSystemItem * const parent, bool analyzeSymlinks)
 		: m_path(path), m_parent(parent), m_analyzeSymlinks(analyzeSymlinks), m_relativeDirDepth(parent != nullptr ? parent->getRelativeDirDepth() + 1 : 0) {
-		m_children = std::vector<FileSystemItem*>(0);
+		m_children = {};
+		m_duplicates = {};
+		m_potentialDuplicates = {};
 
 		m_size = 0;
 		m_childFilesCount = 0;
@@ -129,6 +131,22 @@ namespace FSI
 
 	std::vector<FileSystemItem*> FileSystemItem::getChildren() const {
 		return m_children;
+	}
+
+	void FileSystemItem::addDuplicate(FileSystemItem* const duplicate){
+		m_duplicates.insert(duplicate);
+	}
+
+	void FileSystemItem::addPotentialDuplicate(FileSystemItem* const duplicate){
+		m_potentialDuplicates.insert(duplicate);
+	}
+
+	std::set<FileSystemItem*> FileSystemItem::getDuplicates() const{
+		return m_duplicates;
+	}
+
+	std::set<FileSystemItem*> FileSystemItem::getPotentialDuplicates() const{
+		return m_potentialDuplicates;
 	}
 
 	std::string FileSystemItem::getItemName() const {

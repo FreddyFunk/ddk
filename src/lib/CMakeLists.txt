@@ -1,4 +1,10 @@
 add_library(fsinfo_lib
+    filter/common.cpp
+    filter/common.hpp
+    filter/deduplication.cpp
+    filter/deduplication.hpp
+    filter/duplicate.cpp
+    filter/duplicate.hpp
     fsinfo.cpp
     fsinfo.hpp
     fsitem.cpp

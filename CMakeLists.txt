@@ -6,6 +6,9 @@ project(FSinfo VERSION 1.0.0
                   DESCRIPTION "File System Info"
                   LANGUAGES CXX)
 
+
+set(CMAKE_CXX_STANDARD 17)
+
 # Get Git submodule dependencies
 find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")

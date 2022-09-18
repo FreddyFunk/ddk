@@ -91,7 +91,7 @@ static int getLimit(const InputParser* const input) {
 	}
 }
 
-static void printResults(const FSI::FileSystemInfo* const fsinfo, FSinfoParser::OutputMode outputMode, FSinfoParser::ViewMode viewMode, bool sorted, int limit, bool onlyFiles) {
+static void printResultsScan(const FSI::FileSystemInfo* const fsinfo, FSinfoParser::OutputMode outputMode, FSinfoParser::ViewMode viewMode, bool sorted, int limit, bool onlyFiles) {
 	std::string result{};
 
 	switch (viewMode)
@@ -104,7 +104,18 @@ static void printResults(const FSI::FileSystemInfo* const fsinfo, FSinfoParser::
 		result = FSinfoParser::FSinfoToStringAsList(fsinfo, outputMode, limit, sorted, onlyFiles);
 		break;
 	}
+	
+	fmt::print("Results for: {}\n", fsinfo->getRootPath().string());
+	fmt::print("{}\n", FSinfoParser::FSMetaData(fsinfo));
+	fmt::print("{}\n", FSinfoParser::summary(fsinfo));
+	fmt::print("{}\n", result);
+}
 
+static void printResultsDedup(const FSI::FileSystemInfo* const fsinfo, bool sorted, int limit) {
+	std::string result = FSinfoParser::FSinfoDuplicateList(fsinfo, limit, sorted);
+	
+	fmt::print("Results for: {}\n", fsinfo->getRootPath().string());
+	fmt::print("{}\n", FSinfoParser::summary(fsinfo));
 	fmt::print("{}\n", result);
 }
 
@@ -128,20 +139,37 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	const FSinfoParser::OutputMode outputMode = getOutputMode(&input);
-	const FSinfoParser::ViewMode viewMode = getViewMode(&input);
-	const bool sorted = input.cmdOptionExists("-s");
+	// read general parameters 
+	const bool sorted = input.cmdOptionExists("--sorted");
 	const bool analyzeSymLinks = input.cmdOptionExists("--include-symlinks");
 	const bool onlyFiles = input.cmdOptionExists("--only-files");
 	const int limit = getLimit(&input);
 
+	// Scan file system structure
 	const FSI::FileSystemInfo fsinfo(path, analyzeSymLinks);
 
-	fmt::print("Results for: {}\n", path.string());
-	fmt::print("{}\n", FSinfoParser::FSMetaData(&fsinfo));
-	fmt::print("{}\n", FSinfoParser::summary(&fsinfo));
-	
-	printResults(&fsinfo, outputMode, viewMode, sorted, limit, onlyFiles);
+	// Scan Mode
+	const bool scanMode = input.cmdOptionExists("-scan");
+
+	// Deduplication Mode
+	const bool dedupMode = input.cmdOptionExists("-dedup");
+
+	if ((scanMode && dedupMode) || (!scanMode && !dedupMode))
+	{
+		fmt::print("ERROR: Please select exactly one mode.\n");
+		return 1;
+	}
+
+	if (scanMode)
+	{
+		const FSinfoParser::OutputMode outputMode = getOutputMode(&input);
+		const FSinfoParser::ViewMode viewMode = getViewMode(&input);
+		printResultsScan(&fsinfo, outputMode, viewMode, sorted, limit, onlyFiles);
+	}
+	else if (dedupMode)
+	{
+		printResultsDedup(&fsinfo, sorted, limit);
+	}
 
 	return 0;
 }

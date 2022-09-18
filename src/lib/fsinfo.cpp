@@ -1,13 +1,12 @@
-#include <algorithm>
-
+#include "filter/common.hpp"
+#include "filter/deduplication.hpp"
 #include "fsinfo.hpp"
 
 namespace FSI
 {
 	FileSystemInfo::FileSystemInfo(const std::filesystem::path& path, bool analyzeSymLinks) : m_analyzeSymLinks(analyzeSymLinks),
-	m_spaceInfo(std::filesystem::space(path))
+	m_spaceInfo(std::filesystem::space(path)), m_root(new FileSystemItem(path, nullptr, analyzeSymLinks))
 	{
-		m_root = new FileSystemItem(path, nullptr, m_analyzeSymLinks);
 	}
 
 	FileSystemInfo::~FileSystemInfo() {
@@ -27,31 +26,18 @@ namespace FSI
 		return items;
 	}
 
-	void FileSystemInfo::sortFSitemsBySize(std::vector<FileSystemItem*>& items) const {
-		std::sort(items.begin(), items.end(), [](const auto lhs, const auto rhs)
-			{
-				return lhs->getSizeInBytes() > rhs->getSizeInBytes();
-			});
-	}
-
-	void FileSystemInfo::filterOnlyFiles(std::vector<FileSystemItem*>& items) const {	
-		items.erase(std::remove_if(items.begin(), items.end(),
-		[](const FileSystemItem* fsi) { return fsi->getItemType() != FileSystemItemType::REGULAR_FILE; }),
-		items.end());
-	}
-
 	std::vector<FileSystemItem*> FileSystemInfo::getCurrentDirItems(bool sortedBySize, bool onlyFiles) const
 	{
 		std::vector<FileSystemItem*> items = m_root->getChildren();
 
 		if (onlyFiles)
 		{
-			filterOnlyFiles(items);
+			FILTER::COMMON::onlyFiles(items);
 		}
 
 		if (sortedBySize)
 		{
-			sortFSitemsBySize(items);
+			FILTER::COMMON::sortFSitemsBySize(items);
 		}
 
 		return items;
@@ -62,15 +48,21 @@ namespace FSI
 
 		if (onlyFiles)
 		{
-			filterOnlyFiles(items);
+			FILTER::COMMON::onlyFiles(items);
 		}
 
 		if (sortedBySize)
 		{
-			sortFSitemsBySize(items);
+			FILTER::COMMON::sortFSitemsBySize(items);
 		}
 
 		return items;
+	}
+
+	std::vector<FSI::Duplicate> FileSystemInfo::getDuplicates() const {
+		auto items = getAllFileSystemItems();
+		FILTER::DEDUPLICATION::tagDuplicateBinaries(items);
+		return FILTER::DEDUPLICATION::getUniqueDuplicates(items);
 	}
 
 	std::filesystem::space_info FileSystemInfo::getSpaceInfo() const {
@@ -91,6 +83,10 @@ namespace FSI
 
 	std::uintmax_t FileSystemInfo::getTotalSize() const {
 		return m_root->getSizeInBytes();
+	}
+
+	std::filesystem::path FileSystemInfo::getRootPath() const {
+		return m_root->getPath();
 	}
 
 	bool FileSystemInfo::symlinks() const {

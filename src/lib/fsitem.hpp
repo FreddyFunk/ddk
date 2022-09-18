@@ -1,6 +1,9 @@
+#pragma once
+
 #include <filesystem>
 #include <vector>
 #include <string>
+#include <set>
 
 namespace FSI
 {
@@ -37,6 +40,10 @@ namespace FSI
 		std::size_t getChildSubDirectoriesCount() const;
 		std::size_t getChildSymlinksCount() const;
 		std::vector<FileSystemItem*> getChildren() const;
+		void addDuplicate(FileSystemItem* const duplicate);
+		void addPotentialDuplicate(FileSystemItem* const duplicate);
+		std::set<FileSystemItem*> getDuplicates() const;
+		std::set<FileSystemItem*> getPotentialDuplicates() const;
 
 	private:
 		bool analyzeChildren();
@@ -45,14 +52,15 @@ namespace FSI
 		const std::filesystem::path m_path;
 		const std::size_t m_relativeDirDepth;
 		const bool m_analyzeSymlinks;
+		// TODO: Make m_type constant
 		FileSystemItemType m_type;
 		std::uintmax_t m_size;
 		std::size_t m_childFilesCount;
 		std::size_t m_childSubDirectoriesCount;
 		std::size_t m_childSymlinksCount;
 		std::vector<FileSystemItem*> m_children;
+		std::set<FileSystemItem*> m_duplicates;
+		std::set<FileSystemItem*> m_potentialDuplicates;
 		FileSystemError m_error;
-
-		//FileSystemItem(const std::filesystem::path& path, const FileSystemItem* const parent, std::size_t dirDepthLevel);
 	};
 }

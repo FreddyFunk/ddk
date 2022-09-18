@@ -18,6 +18,7 @@ namespace FSinfoParser {
 	std::string getItemInfo(const FSI::FileSystemItem* item, bool fullPath = false);
 	std::string FSinfoToStringAsTree(const FSI::FileSystemInfo* const fsinfo);
 	std::string FSinfoToStringAsList(const FSI::FileSystemInfo* const fsinfo, OutputMode outputMode, int limit, bool sorted, bool onlyFiles);
+	std::string FSinfoDuplicateList(const FSI::FileSystemInfo* const fsinfo, int limit, bool sorted);
 	std::string FSMetaData(const FSI::FileSystemInfo* const fsinfo);
 	std::string summary(const FSI::FileSystemInfo* const fsinfo);
 }

@@ -88,6 +88,15 @@ namespace FSinfoParser {
 		return itemInfo;
 	}
 
+	std::string getDuplicateInfo(const FSI::Duplicate duplicate) {
+		std::string duplicateInfo{};
+
+		duplicateInfo += "Duplicate detected:\n";
+		duplicateInfo += getItemInfo(duplicate.getFirst(), true) + "\n";
+		duplicateInfo += getItemInfo(duplicate.getSecond(), true) + "\n";
+
+		return duplicateInfo;
+	}
 
 	std::string FSinfoToStringAsTree(const FSI::FileSystemInfo* const fsinfo) {
 		std::string result{};
@@ -114,6 +123,33 @@ namespace FSinfoParser {
 		for (size_t index = 0; index < limit && index < items.size(); index++)
 		{
 			result += getItemInfo(items.at(index), true) + "\n";
+		}
+
+		return result;
+	}
+
+	std::string FSinfoDuplicateList(const FSI::FileSystemInfo* const fsinfo, int limit, bool sorted) {
+		std::string result{};
+		const auto duplicates = fsinfo->getDuplicates();
+
+		if (duplicates.empty())
+		{
+			return "No duplicates found!\n";
+		}
+		else {
+			result += "Duplicates found: " + std::to_string(duplicates.size()) + "\n\n";
+		}
+
+		// TODO: Improve this
+		// disable the limit so there are not to many if else
+		if (limit < 1)
+		{
+			limit = INT_MAX;
+		}
+
+		for (size_t index = 0; index < limit && index < duplicates.size(); index++)
+		{
+			result += getDuplicateInfo(duplicates.at(index)) + "\n";
 		}
 
 		return result;

@@ -7,11 +7,11 @@ namespace FSI
 	FileSystemInfo::FileSystemInfo(const std::filesystem::path& path, bool analyzeSymLinks) : m_analyzeSymLinks(analyzeSymLinks),
 	m_spaceInfo(std::filesystem::space(path))
 	{
-		m_anker = new FileSystemItem(path, nullptr, m_analyzeSymLinks);
+		m_root = new FileSystemItem(path, nullptr, m_analyzeSymLinks);
 	}
 
 	FileSystemInfo::~FileSystemInfo() {
-		delete m_anker;
+		delete m_root;
 	}
 
 	std::vector<FileSystemItem*> FileSystemInfo::getFileSystemItemsRecursive(const FileSystemItem* const item) const {
@@ -42,7 +42,7 @@ namespace FSI
 
 	std::vector<FileSystemItem*> FileSystemInfo::getCurrentDirItems(bool sortedBySize, bool onlyFiles) const
 	{
-		std::vector<FileSystemItem*> items = m_anker->getChildren();
+		std::vector<FileSystemItem*> items = m_root->getChildren();
 
 		if (onlyFiles)
 		{
@@ -58,7 +58,7 @@ namespace FSI
 	}
 
 	std::vector<FileSystemItem*> FileSystemInfo::getAllFileSystemItems(bool sortedBySize, bool onlyFiles) const {
-		std::vector<FileSystemItem*> items = getFileSystemItemsRecursive(m_anker);
+		std::vector<FileSystemItem*> items = getFileSystemItemsRecursive(m_root);
 
 		if (onlyFiles)
 		{
@@ -78,19 +78,19 @@ namespace FSI
 	}
 
 	std::size_t FileSystemInfo::getDirectoriesCount() const {
-		return m_anker->getChildSubDirectoriesCount();
+		return m_root->getChildSubDirectoriesCount();
 	}
 
 	std::size_t FileSystemInfo::getSymlinksCount() const {
-		return m_anker->getChildSymlinksCount();
+		return m_root->getChildSymlinksCount();
 	}
 
 	std::size_t FileSystemInfo::getFilesCount() const {
-		return m_anker->getChildFilesCount();
+		return m_root->getChildFilesCount();
 	}
 
 	std::uintmax_t FileSystemInfo::getTotalSize() const {
-		return m_anker->getSizeInBytes();
+		return m_root->getSizeInBytes();
 	}
 
 	bool FileSystemInfo::symlinks() const {

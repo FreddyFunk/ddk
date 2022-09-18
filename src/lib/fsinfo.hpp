@@ -18,7 +18,7 @@ namespace FSI
 		bool symlinks() const;
 
 	private:
-		const FileSystemItem* m_anker;
+		const FileSystemItem* m_root;
 		const bool m_analyzeSymLinks;
 		const std::filesystem::space_info m_spaceInfo;
 

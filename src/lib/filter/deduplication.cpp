@@ -68,6 +68,7 @@ namespace FSI::FILTER::DEDUPLICATION
 
     void tagDuplicateBinaries(std::vector<FileSystemItem*>& items){
         COMMON::onlyFiles(items);
+        COMMON::removeEmptyFiles(items);
         removeFilesWithUniqueSize(items);
         removeFilesWithUniqueHash(items);
 
@@ -79,14 +80,14 @@ namespace FSI::FILTER::DEDUPLICATION
             }
             
             // TODO: Refactor this nasty logic
-            for (std::size_t outer = 0; outer <= range; outer++)
+            for (std::size_t outer = 0; outer < range - i; outer++)
             {
-                for (std::size_t inner = 0; inner <= range; inner++)
+                for (std::size_t inner = 0; inner < range - i; inner++)
                 {
                     if (inner != outer)
                     {
-                        items.at(inner)->addDuplicate(items.at(outer));
-                        items.at(outer)->addDuplicate(items.at(inner));
+                        items.at(i + inner)->addDuplicate(items.at(i + outer));
+                        items.at(i + outer)->addDuplicate(items.at(i + inner));
                     }
                 }
             }

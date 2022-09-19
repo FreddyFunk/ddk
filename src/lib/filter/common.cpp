@@ -16,4 +16,9 @@ namespace FSI::FILTER::COMMON
 		[](const FileSystemItem* fsi) { return fsi->getItemType() != FileSystemItemType::REGULAR_FILE; }),
 		items.end());
 	}
+	void removeEmptyFiles(std::vector<FileSystemItem*>& items) {
+		items.erase(std::remove_if(items.begin(), items.end(),
+		[](const FileSystemItem* fsi) { return fsi->getSizeInBytes() == 0; }),
+		items.end());
+	}
 }

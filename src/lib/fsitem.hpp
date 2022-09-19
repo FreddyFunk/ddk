@@ -44,6 +44,8 @@ namespace FSI
 		void addPotentialDuplicate(FileSystemItem* const duplicate);
 		std::set<FileSystemItem*> getDuplicates() const;
 		std::set<FileSystemItem*> getPotentialDuplicates() const;
+		void setHash(std::uint64_t hash);
+		std::uint64_t getHash() const;
 
 	private:
 		bool analyzeChildren();
@@ -55,6 +57,7 @@ namespace FSI
 		// TODO: Make m_type constant
 		FileSystemItemType m_type;
 		std::uintmax_t m_size;
+		std::uint64_t m_hash;
 		std::size_t m_childFilesCount;
 		std::size_t m_childSubDirectoriesCount;
 		std::size_t m_childSymlinksCount;

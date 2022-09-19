@@ -27,6 +27,6 @@ namespace FSI
     }
 
     bool Duplicate::operator<(const Duplicate &d) const{
-        return this->m_first < d.m_first && this->m_second < d.m_second;
+        return this->m_first < d.m_first || (this->m_first == d.m_first && this->m_second < d.m_second);
     }
 }

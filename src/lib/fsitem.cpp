@@ -14,6 +14,7 @@ namespace FSI
 		m_childFilesCount = 0;
 		m_childSubDirectoriesCount = 0;
 		m_childSymlinksCount = 0;
+		m_hash = 0;
 
 		m_type = FileSystemItemType::OTHER;
 
@@ -190,5 +191,13 @@ namespace FSI
 	std::size_t FileSystemItem::getChildSymlinksCount() const
 	{
 		return m_childSymlinksCount;
+	}
+
+	void FileSystemItem::setHash(std::uint64_t hash) {
+		m_hash = hash;
+	}
+	
+	std::uint64_t FileSystemItem::getHash() const {
+		return m_hash;
 	}
 }

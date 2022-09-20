@@ -88,12 +88,14 @@ namespace FSinfoParser {
 		return itemInfo;
 	}
 
-	std::string getDuplicateInfo(const FSI::Duplicate duplicate) {
+	std::string getDuplicateInfo(const std::vector<FSI::FileSystemItem*>& duplicates) {
 		std::string duplicateInfo{};
 
-		duplicateInfo += "Duplicate detected:\n";
-		duplicateInfo += getItemInfo(duplicate.getFirst(), true) + "\n";
-		duplicateInfo += getItemInfo(duplicate.getSecond(), true) + "\n";
+		duplicateInfo += "Duplicate Group with " + std::to_string(duplicates.size()) + " duplicates detected:\n";
+		for (const auto duplicate : duplicates)
+		{
+			duplicateInfo += getItemInfo(duplicate, true) + "\n";
+		}
 
 		return duplicateInfo;
 	}
@@ -137,7 +139,7 @@ namespace FSinfoParser {
 			return "No duplicates found!\n";
 		}
 		else {
-			result += "Duplicates found: " + std::to_string(duplicates.size()) + "\n\n";
+			result += "Duplicate Groups found: " + std::to_string(duplicates.size()) + "\n\n";
 		}
 
 		// TODO: Improve this
@@ -169,7 +171,7 @@ namespace FSinfoParser {
 		std::string result{};
 
 		result += "Analyzed files: " + std::to_string(fsinfo->getFilesCount()) + "\n";
-		result += "Analyzed directories: " + std::to_string(fsinfo->getDirectoriesCount()) + "\n";
+		result += "Analyzed subdirectories: " + std::to_string(fsinfo->getDirectoriesCount()) + "\n";
 		
 		if (fsinfo->symlinks()) {
 			result += "Analyzed symlinks: " + std::to_string(fsinfo->getSymlinksCount()) + "\n";

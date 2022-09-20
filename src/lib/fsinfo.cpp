@@ -59,10 +59,10 @@ namespace FSI
 		return items;
 	}
 
-	std::vector<FSI::Duplicate> FileSystemInfo::getDuplicates() const {
+	std::vector<std::vector<FileSystemItem*>> FileSystemInfo::getDuplicates() const {
 		auto items = getAllFileSystemItems();
 		FILTER::DEDUPLICATION::tagDuplicateBinaries(items);
-		return FILTER::DEDUPLICATION::getUniqueDuplicates(items);
+		return FILTER::DEDUPLICATION::getDuplicateClusters(items);
 	}
 
 	std::filesystem::space_info FileSystemInfo::getSpaceInfo() const {

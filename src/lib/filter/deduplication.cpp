@@ -47,12 +47,7 @@ namespace FSI::FILTER::DEDUPLICATION
     }
 
     void removeFilesWithUniqueHash(std::vector<FileSystemItem*>& items){
-        calculateHashValues(items);
-
-        std::sort(items.begin(), items.end(), [](const auto lhs, const auto rhs)
-		{
-			return lhs->getHash() > rhs->getHash();
-		});
+        COMMON::sortFSitemsByHash(items);
         
         std::size_t itemsCount = items.size();
         for (std::size_t i = 0; i < itemsCount; i++){
@@ -70,6 +65,7 @@ namespace FSI::FILTER::DEDUPLICATION
         COMMON::onlyFiles(items);
         COMMON::removeEmptyFiles(items);
         removeFilesWithUniqueSize(items);
+        calculateHashValues(items);
         removeFilesWithUniqueHash(items);
 
         for (std::size_t i = 0; i < items.size(); i++){
@@ -96,22 +92,23 @@ namespace FSI::FILTER::DEDUPLICATION
         }
     }
 
-    std::vector<FSI::Duplicate> getUniqueDuplicates(std::vector<FileSystemItem*>& items){
-        std::vector<FSI::Duplicate> duplicates{};
+    std::vector<std::vector<FileSystemItem*>> getDuplicateClusters(const std::vector<FileSystemItem*>& items){
+        std::vector<FileSystemItem*> duplicates{};
 
         // collect all duplicates
-		for (FileSystemItem* const item : items)
+		for (auto item : items)
 		{
-            for (FileSystemItem* const d : item->getDuplicates())
-            {
-                duplicates.push_back(Duplicate(item, d));
-            }
+            duplicates.push_back(item);
+            const auto& taggedDuplicates = item->getDuplicates();
+            duplicates.insert(duplicates.end(), taggedDuplicates.begin(), taggedDuplicates.end());
 		}
-        
-        // extract unique duplicates
+
+        // remove redundant duplicates
         std::sort(duplicates.begin(), duplicates.end());
         duplicates.erase(std::unique(duplicates.begin(), duplicates.end()), duplicates.end());
 
-		return duplicates;
+        COMMON::sortFSitemsByHash(duplicates);
+
+        return COMMON::makeClusters(duplicates);
     }
 }

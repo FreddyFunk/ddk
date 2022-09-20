@@ -54,7 +54,6 @@ namespace FSI
 		const std::filesystem::path m_path;
 		const std::size_t m_relativeDirDepth;
 		const bool m_analyzeSymlinks;
-		// TODO: Make m_type constant
 		FileSystemItemType m_type;
 		std::uintmax_t m_size;
 		std::uint64_t m_hash;

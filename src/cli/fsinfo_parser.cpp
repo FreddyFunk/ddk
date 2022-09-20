@@ -111,28 +111,26 @@ namespace FSinfoParser {
 		return result;
 	}
 
-	std::string FSinfoToStringAsList(const FSI::FileSystemInfo* const fsinfo, OutputMode outputMode, int limit, bool sorted, bool onlyFiles) {
+	std::string FSinfoToStringAsList(const FSI::FileSystemInfo* const fsinfo, OutputMode outputMode, std::size_t limit, bool sorted, bool onlyFiles) {
 		std::string result{};
-		const auto items = outputMode == OutputMode::ALL ? fsinfo->getAllFileSystemItems(sorted, onlyFiles) : fsinfo->getCurrentDirItems(sorted, onlyFiles);
+		auto items = outputMode == OutputMode::ALL ? fsinfo->getAllFileSystemItems(sorted, onlyFiles) : fsinfo->getCurrentDirItems(sorted, onlyFiles);
 
-		// TODO: Improve this
-		// disable the limit so there are not to many if else
-		if (limit < 1)
+		if (limit != 0 && items.size() > limit)
 		{
-			limit = INT_MAX;
+			items.resize(limit);
 		}
 
-		for (size_t index = 0; index < limit && index < items.size(); index++)
+		for (const auto item : items)
 		{
-			result += getItemInfo(items.at(index), true) + "\n";
+			result += getItemInfo(item, true) + "\n";
 		}
 
 		return result;
 	}
 
-	std::string FSinfoDuplicateList(const FSI::FileSystemInfo* const fsinfo, int limit, bool sorted) {
+	std::string FSinfoDuplicateList(const FSI::FileSystemInfo* const fsinfo, std::size_t limit, bool sorted) {
 		std::string result{};
-		const auto duplicates = fsinfo->getDuplicates();
+		auto duplicates = fsinfo->getDuplicates();
 
 		if (duplicates.empty())
 		{
@@ -142,16 +140,14 @@ namespace FSinfoParser {
 			result += "Duplicate Groups found: " + std::to_string(duplicates.size()) + "\n\n";
 		}
 
-		// TODO: Improve this
-		// disable the limit so there are not to many if else
-		if (limit < 1)
+		if (limit != 0 && duplicates.size() > limit)
 		{
-			limit = INT_MAX;
+			duplicates.resize(limit);
 		}
 
-		for (size_t index = 0; index < limit && index < duplicates.size(); index++)
+		for (const auto duplicate : duplicates)
 		{
-			result += getDuplicateInfo(duplicates.at(index)) + "\n";
+			result += getDuplicateInfo(duplicate) + "\n";
 		}
 
 		return result;

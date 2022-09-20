@@ -47,10 +47,7 @@ namespace FSI::FILTER::DEDUPLICATION
     }
 
     void removeFilesWithUniqueHash(std::vector<FileSystemItem*>& items){
-        std::sort(items.begin(), items.end(), [](const auto lhs, const auto rhs)
-		{
-			return lhs->getHash() > rhs->getHash();
-		});
+        COMMON::sortFSitemsByHash(items);
         
         std::size_t itemsCount = items.size();
         for (std::size_t i = 0; i < itemsCount; i++){
@@ -96,7 +93,7 @@ namespace FSI::FILTER::DEDUPLICATION
     }
 
     std::vector<std::vector<FileSystemItem*>> getUniqueDuplicates(std::vector<FileSystemItem*>& items){
-        std::vector<std::vector<FileSystemItem*>> duplicateSets{};
+        std::vector<std::vector<FileSystemItem*>> duplicateCollection{};
         std::vector<FileSystemItem*> duplicates{};
 
         // collect all duplicates
@@ -106,7 +103,11 @@ namespace FSI::FILTER::DEDUPLICATION
             duplicates.insert(duplicates.end(), taggedDuplicates.begin(), taggedDuplicates.end());
 		}
 
-        removeFilesWithUniqueHash(duplicates);
+        // remove redundant duplicates
+        std::sort(duplicates.begin(), duplicates.end());
+        duplicates.erase(std::unique(duplicates.begin(), duplicates.end()), duplicates.end());
+
+        COMMON::sortFSitemsByHash(duplicates);
         
         for (std::size_t i = 0; i < duplicates.size(); i++){
             std::size_t range = i;
@@ -115,16 +116,19 @@ namespace FSI::FILTER::DEDUPLICATION
                 range++;
             }
             
-            std::vector<FileSystemItem*> duplicateSet{};
-            for (std::size_t d = 0; d < range - i; d++)
+            if (range > i)
             {
-                duplicateSet.push_back(duplicates.at(d));
+                std::vector<FileSystemItem*> duplicateSet{};
+                for (std::size_t d = 0; d <= range - i; d++)
+                {
+                    duplicateSet.push_back(duplicates.at(i + d));
+                }
+                duplicateCollection.push_back(duplicateSet);
             }
-            duplicateSets.push_back(duplicateSet);
 
             i += range - i;
         }
         
-		return duplicateSets;
+		return duplicateCollection;
     }
 }

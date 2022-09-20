@@ -11,6 +11,12 @@ namespace FSI::FILTER::COMMON
 			return lhs->getSizeInBytes() > rhs->getSizeInBytes();
 		});
 	}
+	void sortFSitemsByHash(std::vector<FileSystemItem*>& items) {
+		std::sort(items.begin(), items.end(), [](const auto lhs, const auto rhs)
+		{
+			return lhs->getHash() > rhs->getHash();
+		});
+	}
 	void onlyFiles(std::vector<FileSystemItem*>& items) {
 		items.erase(std::remove_if(items.begin(), items.end(),
 		[](const FileSystemItem* fsi) { return fsi->getItemType() != FileSystemItemType::REGULAR_FILE; }),

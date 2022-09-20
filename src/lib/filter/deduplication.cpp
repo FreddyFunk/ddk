@@ -5,17 +5,6 @@
 #include "xxh3.h"
 namespace FSI::FILTER::DEDUPLICATION
 {
-    XXH64_hash_t hashFileStream(const std::filesystem::path& path)
-    {
-        // Fallback when mapped memory is not supported
-        // TODO: Optimize i/o with mapped memory
-        // TODO: Multithread hash calculation 
-        // dual swapping (pointer switch, buffer overwrite not clearing) input buffers
-        // indivial input buffers should be a multiple of bufferSize and at least bufferSize * threads
-
-        return {};
-    }
-
     XXH64_hash_t hashMappedMemory(const std::filesystem::path& path)
     {
         // TODO: Error Handling

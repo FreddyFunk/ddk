@@ -75,7 +75,6 @@ namespace FSI::FILTER::DEDUPLICATION
                 range++;
             }
             
-            // TODO: Refactor this nasty logic
             for (std::size_t outer = 0; outer < range - i; outer++)
             {
                 for (std::size_t inner = 0; inner < range - i; inner++)

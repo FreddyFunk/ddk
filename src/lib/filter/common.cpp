@@ -14,7 +14,7 @@ namespace FSI::FILTER::COMMON
 
 			auto clusterEnd = std::find_if(clusterBegin, items.end(),
 											[&](FileSystemItem* item) { return item->getHash() != element->getHash(); });
-			clusters.emplace_back(clusterBegin, clusterEnd);
+			clusters.emplace_back(std::vector<FileSystemItem*>(clusterBegin, clusterEnd));
 
 			clusterBegin = clusterEnd;
 		}

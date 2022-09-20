@@ -96,8 +96,9 @@ namespace FSI::FILTER::DEDUPLICATION
         std::vector<FileSystemItem*> duplicates{};
 
         // collect all duplicates
-		for (const FileSystemItem* const item : items)
+		for (auto item : items)
 		{
+            duplicates.push_back(item);
             const auto& taggedDuplicates = item->getDuplicates();
             duplicates.insert(duplicates.end(), taggedDuplicates.begin(), taggedDuplicates.end());
 		}

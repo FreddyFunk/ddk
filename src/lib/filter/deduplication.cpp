@@ -92,12 +92,11 @@ namespace FSI::FILTER::DEDUPLICATION
         }
     }
 
-    std::vector<std::vector<FileSystemItem*>> getUniqueDuplicates(std::vector<FileSystemItem*>& items){
-        std::vector<std::vector<FileSystemItem*>> duplicateCollection{};
+    std::vector<std::vector<FileSystemItem*>> getDuplicateClusters(const std::vector<FileSystemItem*>& items){
         std::vector<FileSystemItem*> duplicates{};
 
         // collect all duplicates
-		for (FileSystemItem* const item : items)
+		for (const FileSystemItem* const item : items)
 		{
             const auto& taggedDuplicates = item->getDuplicates();
             duplicates.insert(duplicates.end(), taggedDuplicates.begin(), taggedDuplicates.end());
@@ -108,27 +107,7 @@ namespace FSI::FILTER::DEDUPLICATION
         duplicates.erase(std::unique(duplicates.begin(), duplicates.end()), duplicates.end());
 
         COMMON::sortFSitemsByHash(duplicates);
-        
-        for (std::size_t i = 0; i < duplicates.size(); i++){
-            std::size_t range = i;
-            while (range < duplicates.size() - 1 && duplicates.at(i)->getHash() == duplicates.at(range + 1)->getHash())
-            {
-                range++;
-            }
-            
-            if (range > i)
-            {
-                std::vector<FileSystemItem*> duplicateSet{};
-                for (std::size_t d = 0; d <= range - i; d++)
-                {
-                    duplicateSet.push_back(duplicates.at(i + d));
-                }
-                duplicateCollection.push_back(duplicateSet);
-            }
 
-            i += range - i;
-        }
-        
-		return duplicateCollection;
+        return COMMON::makeClusters(duplicates);
     }
 }

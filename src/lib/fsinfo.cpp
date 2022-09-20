@@ -62,7 +62,7 @@ namespace FSI
 	std::vector<std::vector<FileSystemItem*>> FileSystemInfo::getDuplicates() const {
 		auto items = getAllFileSystemItems();
 		FILTER::DEDUPLICATION::tagDuplicateBinaries(items);
-		return FILTER::DEDUPLICATION::getUniqueDuplicates(items);
+		return FILTER::DEDUPLICATION::getDuplicateClusters(items);
 	}
 
 	std::filesystem::space_info FileSystemInfo::getSpaceInfo() const {

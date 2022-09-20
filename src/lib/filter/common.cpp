@@ -4,7 +4,23 @@
 
 namespace FSI::FILTER::COMMON
 {
-	
+    std::vector<std::vector<FileSystemItem*>> makeClusters(std::vector<FileSystemItem*>& items) {
+		std::vector<std::vector<FileSystemItem*>> clusters;
+
+		auto clusterBegin = items.begin();
+		while (clusterBegin != items.end())
+		{
+			auto element = *clusterBegin;
+
+			auto clusterEnd = std::find_if(clusterBegin, items.end(),
+											[&](FileSystemItem* item) { return item->getHash() != element->getHash(); });
+			clusters.emplace_back(clusterBegin, clusterEnd);
+
+			clusterBegin = clusterEnd;
+		}
+
+		return clusters;
+	}
 	void sortFSitemsBySize(std::vector<FileSystemItem*>& items) {
 		std::sort(items.begin(), items.end(), [](const auto lhs, const auto rhs)
 		{

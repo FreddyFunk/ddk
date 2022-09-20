@@ -88,12 +88,14 @@ namespace FSinfoParser {
 		return itemInfo;
 	}
 
-	std::string getDuplicateInfo(const FSI::Duplicate duplicate) {
+	std::string getDuplicateInfo(const std::vector<FSI::FileSystemItem*>& duplicates) {
 		std::string duplicateInfo{};
 
 		duplicateInfo += "Duplicate detected:\n";
-		duplicateInfo += getItemInfo(duplicate.getFirst(), true) + "\n";
-		duplicateInfo += getItemInfo(duplicate.getSecond(), true) + "\n";
+		for (const auto duplicate : duplicates)
+		{
+			duplicateInfo += getItemInfo(duplicate, true) + "\n";
+		}
 
 		return duplicateInfo;
 	}

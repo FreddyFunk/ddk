@@ -47,8 +47,6 @@ namespace FSI::FILTER::DEDUPLICATION
     }
 
     void removeFilesWithUniqueHash(std::vector<FileSystemItem*>& items){
-        calculateHashValues(items);
-
         std::sort(items.begin(), items.end(), [](const auto lhs, const auto rhs)
 		{
 			return lhs->getHash() > rhs->getHash();
@@ -70,6 +68,7 @@ namespace FSI::FILTER::DEDUPLICATION
         COMMON::onlyFiles(items);
         COMMON::removeEmptyFiles(items);
         removeFilesWithUniqueSize(items);
+        calculateHashValues(items);
         removeFilesWithUniqueHash(items);
 
         for (std::size_t i = 0; i < items.size(); i++){
@@ -96,22 +95,36 @@ namespace FSI::FILTER::DEDUPLICATION
         }
     }
 
-    std::vector<FSI::Duplicate> getUniqueDuplicates(std::vector<FileSystemItem*>& items){
-        std::vector<FSI::Duplicate> duplicates{};
+    std::vector<std::vector<FileSystemItem*>> getUniqueDuplicates(std::vector<FileSystemItem*>& items){
+        std::vector<std::vector<FileSystemItem*>> duplicateSets{};
+        std::vector<FileSystemItem*> duplicates{};
 
         // collect all duplicates
 		for (FileSystemItem* const item : items)
 		{
-            for (FileSystemItem* const d : item->getDuplicates())
-            {
-                duplicates.push_back(Duplicate(item, d));
-            }
+            const auto& taggedDuplicates = item->getDuplicates();
+            duplicates.insert(duplicates.end(), taggedDuplicates.begin(), taggedDuplicates.end());
 		}
-        
-        // extract unique duplicates
-        std::sort(duplicates.begin(), duplicates.end());
-        duplicates.erase(std::unique(duplicates.begin(), duplicates.end()), duplicates.end());
 
-		return duplicates;
+        removeFilesWithUniqueHash(duplicates);
+        
+        for (std::size_t i = 0; i < duplicates.size(); i++){
+            std::size_t range = i;
+            while (range < duplicates.size() - 1 && duplicates.at(i)->getHash() == duplicates.at(range + 1)->getHash())
+            {
+                range++;
+            }
+            
+            std::vector<FileSystemItem*> duplicateSet{};
+            for (std::size_t d = 0; d < range - i; d++)
+            {
+                duplicateSet.push_back(duplicates.at(d));
+            }
+            duplicateSets.push_back(duplicateSet);
+
+            i += range - i;
+        }
+        
+		return duplicateSets;
     }
 }

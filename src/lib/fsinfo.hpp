@@ -1,6 +1,7 @@
 #pragma once
 
 #include "fsitem.hpp"
+#include "data_types/image.hpp"
 
 namespace FSI
 {
@@ -12,7 +13,9 @@ namespace FSI
 
 		std::vector<FileSystemItem*> getCurrentDirItems(bool sortedBySize = false, bool onlyFiles = false) const;
 		std::vector<FileSystemItem*> getAllFileSystemItems(bool sortedBySize = false, bool onlyFiles = false) const;
+		std::vector<FSI::DATA::Image*> getImages() const;
 		std::vector<std::vector<FileSystemItem*>> getDuplicates() const;
+		std::vector<std::vector<FSI::DATA::Image*>> getPotentialDuplicateImages() const;
 		std::filesystem::space_info getSpaceInfo() const;
 		std::size_t getDirectoriesCount() const;
 		std::size_t getSymlinksCount() const;

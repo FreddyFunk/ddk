@@ -1,4 +1,6 @@
 add_library(fsinfo_lib
+    data_types/image.cpp
+    data_types/image.hpp
     filter/common.cpp
     filter/common.hpp
     filter/deduplication.cpp

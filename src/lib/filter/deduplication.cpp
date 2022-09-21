@@ -99,4 +99,24 @@ namespace FSI::FILTER::DEDUPLICATION
 
         return COMMON::makeClusters(duplicates);
     }
+
+    std::vector<std::vector<FileSystemItem*>> getDuplicateClustersSorted(const std::vector<FileSystemItem*>& items){
+        auto clusters = getDuplicateClusters(items);
+
+        for (auto& cluster : clusters)
+        {
+            std::sort(cluster.begin(), cluster.end(), [](const auto lhs, const auto rhs)
+            {
+                if (lhs->getRelativeDirDepth() == rhs->getRelativeDirDepth())
+                {
+                    return lhs->getPath().filename().string().size() > rhs->getPath().filename().string().size();
+                }
+                else {
+                    return lhs->getRelativeDirDepth() < rhs->getRelativeDirDepth();
+                }
+            });
+        }
+
+        return clusters;
+    }
 }

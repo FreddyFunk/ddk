@@ -3,8 +3,6 @@ add_library(fsinfo_lib
     filter/common.hpp
     filter/deduplication.cpp
     filter/deduplication.hpp
-    filter/duplicate.cpp
-    filter/duplicate.hpp
     io/mmap_file_read_only.cpp
     io/mmap_file_read_only.hpp
     fsinfo.cpp

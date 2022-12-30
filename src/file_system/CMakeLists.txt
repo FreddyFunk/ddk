@@ -16,4 +16,4 @@ replicate_directory_structure(${PROJECT_NAME}::file_system)
 
 target_include_directories(file_system INTERFACE ./)
 
-target_link_libraries(file_system PRIVATE data_types filter xxHash::xxhash)
+target_link_libraries(file_system PRIVATE xxHash::xxhash)

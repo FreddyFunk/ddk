@@ -10,4 +10,4 @@ add_executable(${PROJECT_NAME}::ddk ALIAS ddk)
 replicate_directory_structure(${PROJECT_NAME}::ddk)
 
 # link dependencies
-target_link_libraries(ddk PRIVATE filter file_system fmt::fmt)
+target_link_libraries(ddk PRIVATE file_system fmt::fmt)

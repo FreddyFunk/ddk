@@ -59,52 +59,10 @@ namespace FSI
 		return items;
 	}
 
-	std::vector<FSI::DATA::Image*> FileSystemInfo::getImages() const {
-		std::vector<FileSystemItem*> items = getFileSystemItemsRecursive(m_root);
-		FILTER::COMMON::onlyFiles(items);
-		std::vector<FSI::DATA::Image*> images{};
-		
-		for (const auto& item : items)
-		{
-			FSI::DATA::Image* const image = new FSI::DATA::Image(item);
-			if (image->getType() == FSI::DATA::ImageType::UNSUPPORTED)
-			{
-				delete image;
-			}
-			else {
-				images.push_back(image);
-			}
-		}
-		
-
-		// create image class with FSI pointer and other important metadata (able to process, type, access metadata, histogram, distance to default histogram)
-		// create a vector of images
-		// scan items for extensions that can be mapped to a supported image type
-		// create image from item and store to vector of images
-
-
-		// extract to other function: is image processable
-
-		// OpenCV (https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html)
-		// Returns true if the specified image can be decoded by OpenCV.
-		// cv::haveImageReader (const String &filename);
-
-		// HEIF
-		// extract HEIF and LiveImage image to memory
-
-		// return vector of images
-		return images;
-	}
-
 	std::vector<std::vector<FileSystemItem*>> FileSystemInfo::getDuplicates() const {
 		auto items = getAllFileSystemItems();
 		FILTER::DEDUPLICATION::tagDuplicateBinaries(items);
 		return FILTER::DEDUPLICATION::getDuplicateClustersSorted(items);
-	}
-	
-	std::vector<std::vector<FSI::DATA::Image*>> FileSystemInfo::getPotentialDuplicateImages() const {
-		auto items = getImages();
-		return {};
 	}
 
 	std::filesystem::space_info FileSystemInfo::getSpaceInfo() const {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../fsitem.hpp"
 #include <unordered_map>
 
 namespace FSI::DATA
@@ -47,18 +46,4 @@ namespace FSI::DATA
             {".hdr", ImageType::RHDR},
             {".pic", ImageType::RHDR}
         };
-
-
-    class Image {
-    public:
-        Image(const FSI::FileSystemItem* const item);
-        ~Image();
-        ImageType getType() const;
-
-    private:
-        ImageType getFromFileExtension(const FSI::FileSystemItem* const item) const;
-
-        const FSI::FileSystemItem* const m_item;
-        const ImageType m_type;
-    };
 }

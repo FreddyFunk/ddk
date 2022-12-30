@@ -1,6 +1,6 @@
 #include "common.hpp"
 #include "deduplication.hpp"
-#include "mmap_file_read_only.hpp"
+#include "io/mmap_file_read_only.hpp"
 
 #include "xxh3.h"
 namespace FSI::FILTER::DEDUPLICATION

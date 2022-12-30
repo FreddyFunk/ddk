@@ -1,2 +1,2 @@
-add_subdirectory(lib)
-add_subdirectory(cli)
+add_subdirectory(ddk)
+add_subdirectory(file_system)

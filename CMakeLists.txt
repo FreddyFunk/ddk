@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.12...3.24)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-project(FSinfo VERSION 1.0.0
-                  DESCRIPTION "File System Info"
-                  LANGUAGES CXX)
-
+project(DDK
+    VERSION 0.0.1
+    DESCRIPTION "DeDupKit"
+    LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 

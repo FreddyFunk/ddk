@@ -1,6 +1,7 @@
 #pragma once
 
 #include "fsitem.hpp"
+#include "data_types.hpp"
 
 namespace FSI
 {

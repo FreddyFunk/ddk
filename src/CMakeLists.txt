@@ -1,4 +1,4 @@
-add_subdirectory(cli)
+add_subdirectory(ddk)
 add_subdirectory(data_types)
 add_subdirectory(file_system)
 add_subdirectory(filter)

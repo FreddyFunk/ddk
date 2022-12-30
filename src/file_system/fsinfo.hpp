@@ -1,7 +1,7 @@
 #pragma once
 
 #include "fsitem.hpp"
-#include "data_types/image.hpp"
+#include "image.hpp"
 
 namespace FSI
 {

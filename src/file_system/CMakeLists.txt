@@ -1,11 +1,13 @@
-add_library(ddk_file_system
+add_library(file_system
     fsinfo.cpp
     fsinfo.hpp
     fsitem.cpp
     fsitem.hpp
 )
-add_library(${PROJECT_NAME}::file_system ALIAS ddk_file_system)
+add_library(${PROJECT_NAME}::file_system ALIAS file_system)
 
 replicate_directory_structure(${PROJECT_NAME}::file_system)
 
-target_include_directories(ddk_file_system INTERFACE ./)
+target_include_directories(file_system INTERFACE ./)
+
+target_link_libraries(file_system PRIVATE data_types)

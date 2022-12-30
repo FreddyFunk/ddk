@@ -1,15 +1,13 @@
-add_executable(fsinfo_cli
+add_executable(ddk
     cli.cpp
     fsinfo_parser.cpp
     fsinfo_parser.hpp
     input_params_parser.cpp
     input_params_parser.hpp
 )
+add_executable(${PROJECT_NAME}::cli ALIAS ddk)
 
-replicate_directory_structure(fsinfo_cli)
-
-# set C++ language standard to c++17
-target_compile_features(fsinfo_cli PRIVATE cxx_std_17)
+replicate_directory_structure(${PROJECT_NAME}::cli)
 
 # link dependencies
-target_link_libraries(fsinfo_cli PRIVATE fsinfo_lib fmt::fmt)
+target_link_libraries(ddk PRIVATE ddk_filter fmt::fmt)

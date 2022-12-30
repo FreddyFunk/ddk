@@ -1,2 +1,5 @@
-add_subdirectory(lib)
 add_subdirectory(cli)
+add_subdirectory(data_types)
+add_subdirectory(file_system)
+add_subdirectory(filter)
+add_subdirectory(io)

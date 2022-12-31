@@ -1,6 +1,7 @@
 # _`D`e`D`uplication`K`it_ 
 
 ![ubuntu x64](https://github.com/FreddyFunk/ddk/actions/workflows/ci-ubuntu-x64.yml/badge.svg?branch=master)
+![macOS](https://github.com/FreddyFunk/ddk/actions/workflows/ci-macos.yml/badge.svg?branch=master)
 
 
 ## About

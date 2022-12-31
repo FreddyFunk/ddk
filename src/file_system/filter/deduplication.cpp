@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "common.hpp"
 #include "deduplication.hpp"
 #include "io/mmap_file_read_only.hpp"

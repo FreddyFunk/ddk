@@ -1,15 +1,12 @@
 # _`D`e`D`uplication`K`it_ 
 
-`ddk` is a simple command line tool for finding duplicate files at high speed. `ddk` also provides advanced deduplication detection techniques for various file formats like images, video, audio and text.
+`ddk` is a simple command line tool for finding duplicate files at high speed.
 
+## Long-term plans
+`ddk` aims to provides advanced deduplication detection techniques for various file formats like images, video, audio and text in the future.
 
 ## Build Instructions
-### Building the command line version
-### Building on macOS
 ```bash
-# Install dependencies
-brew install cmake ninja
-
 # BUILD_TYPE can be "Release" or "Debug"
 BUILD_TYPE=Release
 

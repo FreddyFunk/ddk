@@ -1,4 +1,4 @@
-name: CMake
+name: ubuntu x64
 
 on:
   push:

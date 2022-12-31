@@ -1,5 +1,9 @@
 # _`D`e`D`uplication`K`it_ 
 
+![ubuntu x64](https://github.com/FreddyFunk/ddk/actions/workflows/ci-ubuntu-x64.yml/badge.svg?branch=master)
+
+
+## About
 `ddk` is a simple command line tool for finding duplicate files at high speed.
 
 ## Long-term plans

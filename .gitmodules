@@ -4,3 +4,6 @@
 [submodule "externals/xxHash"]
 	path = externals/xxHash
 	url = https://github.com/Cyan4973/xxHash.git
+[submodule "externals/portable-memory-mapping"]
+	path = externals/portable-memory-mapping
+	url = https://github.com/FreddyFunk/portable-memory-mapping.git

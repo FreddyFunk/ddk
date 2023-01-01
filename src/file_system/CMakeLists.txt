@@ -1,4 +1,4 @@
-add_library(file_system
+add_library(file_system STATIC
     filter/common.cpp
     filter/common.hpp
     filter/deduplication.cpp
@@ -9,6 +9,8 @@ add_library(file_system
     fsitem.hpp
 )
 add_library(${PROJECT_NAME}::file_system ALIAS file_system)
+
+set_property(TARGET file_system PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 replicate_directory_structure(${PROJECT_NAME}::file_system)
 

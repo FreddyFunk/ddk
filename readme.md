@@ -8,7 +8,7 @@
 `ddk` is a simple command line tool for finding duplicate files at high speed.
 
 ## Long-term plans
-`ddk` aims to provides advanced deduplication detection techniques for various file formats like images, video, audio and text in the future.
+`ddk` aims to provide advanced deduplication detection techniques for various file formats like images, video, audio and text in the future.
 
 ## Build Instructions
 ```bash

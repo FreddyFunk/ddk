@@ -1,16 +1,15 @@
 #include <algorithm>
 #include "common.hpp"
 #include "deduplication.hpp"
-#include "io/mmap_file_read_only.hpp"
+#include "MemoryMapped.h"
 
 #include "xxh3.h"
 namespace FSI::FILTER::DEDUPLICATION
 {
     XXH64_hash_t hashMappedMemory(const std::filesystem::path& path)
     {
-        // TODO: Error Handling
-        FSI::IO::MMapFileReadOnly file(path.c_str());
-        XXH64_hash_t hash = XXH64(file.getData(), file.getSize(), 0);
+        MemoryMapped file(path.string(), MemoryMapped::MapRange::WholeFile, MemoryMapped::CacheHint::SequentialScan);
+        XXH64_hash_t hash = XXH64(file.getData(), file.size(), 0);
         return hash;
     }
 

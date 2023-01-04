@@ -12,16 +12,10 @@
 
 ## Build Instructions
 ```bash
-# BUILD_TYPE can be "Release" or "Debug"
-BUILD_TYPE=Release
-
 # Configure CMake
-cmake \
--B ./build \
--DCMAKE_BUILD_TYPE=$BUILD_TYPE \
--G Ninja
+cmake -B ./build -G Ninja
 
 # Build
 cd build
-cmake --build . --config $BUILD_TYPE
+cmake --build .
 ```

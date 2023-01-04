@@ -2,7 +2,7 @@
 #include <sstream>
 #include <cmath>
 
-namespace FSinfoParser {
+namespace DDK::FSInfoParser {
 	std::string humanReadableSize(std::uintmax_t size){
 		double mantissa = size;
 		int i = 0;
@@ -15,18 +15,18 @@ namespace FSinfoParser {
 		return stream.str();
 	}
 
-	std::string getItemInfo(const FSI::FileSystemItem* item, bool fullPath) {
+	std::string getItemInfo(const DDK::FileSystemItem* item, bool fullPath) {
 		std::string itemInfo{};
 
 		switch(item->getError())
 		{
-		case FSI::FileSystemError::ACCESS_DENIED:
+		case DDK::FileSystemError::ACCESS_DENIED:
 			itemInfo += "ERROR: ACCESS DENIED! ";
 			break;
-		case FSI::FileSystemError::PATH_DOES_NOT_EXIST:
+		case DDK::FileSystemError::PATH_DOES_NOT_EXIST:
 			itemInfo += "ERROR: PATH DOES NOT EXIST! ";
 			break;
-		case FSI::FileSystemError::NO_ERROR:
+		case DDK::FileSystemError::NO_ERROR:
 		default:
 			break;
 		}
@@ -43,7 +43,7 @@ namespace FSinfoParser {
 		return itemInfo;
 	}
 
-	std::string getDuplicateInfo(const std::vector<FSI::FileSystemItem*>& duplicates) {
+	std::string getDuplicateInfo(const std::vector<DDK::FileSystemItem*>& duplicates) {
 		std::string duplicateInfo{};
 
 		duplicateInfo += "Duplicate Group with " + std::to_string(duplicates.size()) + " duplicates detected: " + humanReadableSize(duplicates.front()->getSizeInBytes() * duplicates.size()) + " [" + std::to_string(duplicates.size()) + " x " + humanReadableSize(duplicates.front()->getSizeInBytes()) + "]\n";
@@ -55,7 +55,7 @@ namespace FSinfoParser {
 		return duplicateInfo;
 	}
 
-	std::string FSinfoDuplicateList(const FSI::FileSystemInfo* const fsinfo) {
+	std::string FSinfoDuplicateList(const DDK::FileSystemInfo* const fsinfo) {
 		std::string result{};
 		auto duplicates = fsinfo->getDuplicates();
 
@@ -82,7 +82,7 @@ namespace FSinfoParser {
 		return result;
 	}
 
-	std::string summary(const FSI::FileSystemInfo* const fsinfo) {
+	std::string summary(const DDK::FileSystemInfo* const fsinfo) {
 		std::string result{};
 
 		result += "Analyzed files: " + std::to_string(fsinfo->getFilesCount()) + "\n";

@@ -2,7 +2,7 @@
 #include "filter/deduplication.hpp"
 #include "fsinfo.hpp"
 
-namespace FSI
+namespace DDK
 {
 	FileSystemInfo::FileSystemInfo(const std::filesystem::path& path, bool analyzeSymLinks) : m_analyzeSymLinks(analyzeSymLinks),
 	m_spaceInfo(std::filesystem::space(path)), m_root(new FileSystemItem(path, nullptr, analyzeSymLinks))

@@ -3,7 +3,7 @@
 #include "fsitem.hpp"
 #include "data_types.hpp"
 
-namespace FSI
+namespace DDK
 {
 	class FileSystemInfo
 	{

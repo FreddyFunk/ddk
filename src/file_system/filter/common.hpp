@@ -1,6 +1,6 @@
 #include "../fsitem.hpp"
 
-namespace FSI::FILTER::COMMON
+namespace DDK::FILTER::COMMON
 {
     std::vector<std::vector<FileSystemItem*>> makeClusters(std::vector<FileSystemItem*>& items);
     void sortFSitemsBySize(std::vector<FileSystemItem*>& items);

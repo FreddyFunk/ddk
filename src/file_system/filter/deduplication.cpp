@@ -4,7 +4,7 @@
 #include "MemoryMapped.h"
 
 #include "xxh3.h"
-namespace FSI::FILTER::DEDUPLICATION
+namespace DDK::FILTER::DEDUPLICATION
 {
     XXH64_hash_t hashMappedMemory(const std::filesystem::path& path)
     {

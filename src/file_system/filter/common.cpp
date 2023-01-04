@@ -2,7 +2,7 @@
 #include "common.hpp"
 
 
-namespace FSI::FILTER::COMMON
+namespace DDK::FILTER::COMMON
 {
     std::vector<std::vector<FileSystemItem*>> makeClusters(std::vector<FileSystemItem*>& items) {
 		std::vector<std::vector<FileSystemItem*>> clusters;
@@ -35,7 +35,7 @@ namespace FSI::FILTER::COMMON
 	}
 	void onlyFiles(std::vector<FileSystemItem*>& items) {
 		items.erase(std::remove_if(items.begin(), items.end(),
-		[](const FileSystemItem* fsi) { return fsi->getItemType() != FileSystemItemType::REGULAR_FILE; }),
+		[](const FileSystemItem* fsi) { return fsi->getItemType() != std::filesystem::file_type::regular; }),
 		items.end());
 	}
 	void removeEmptyFiles(std::vector<FileSystemItem*>& items) {

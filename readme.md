@@ -18,4 +18,7 @@ cmake -B ./build -G Ninja
 # Build
 cd build
 cmake --build .
+
+# Run unit tests
+ctest -C
 ```

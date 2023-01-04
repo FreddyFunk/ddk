@@ -5,6 +5,11 @@
 
 #include "gtest/gtest.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+#include <stdio.h>
+#endif
+
 namespace DDK {
 namespace Test {
 
@@ -93,12 +98,59 @@ namespace Test {
         }
 
         void SetUp() override {
-            //item = new FileSystemItem(base_path, nullptr);
         }
 
         void TearDown() override {
             delete item;
         }
+
+#ifdef _WIN32
+        bool canCheckWindowsPermissions(){
+            HANDLE token;
+            if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token))
+            {
+                // The calling process has sufficient privileges to query the token
+                CloseHandle(token);
+                return true;
+            }
+            else
+            {
+                // The calling process does not have sufficient privileges to query the token
+                CloseHandle(token);
+                return false;
+            }
+        }
+        bool canCreateWindowsSymlinks(){
+            if (!canCheckWindowsPermissions())
+            {
+                return false;
+            }
+            HANDLE token;
+            if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token))
+            {
+                LUID luid;
+                if (LookupPrivilegeValue(nullptr, SE_CREATE_SYMBOLIC_LINK_NAME, &luid))
+                {
+                    TOKEN_PRIVILEGES tp;
+                    tp.PrivilegeCount = 1;
+                    tp.Privileges[0].Luid = luid;
+                    tp.Privileges[0].Attributes = 0;
+
+                    DWORD size;
+                    if (AdjustTokenPrivileges(token, FALSE, &tp, sizeof(tp), nullptr, &size))
+                    {
+                        CloseHandle(token);
+                        return true;
+                    }
+                    else
+                    {
+                        CloseHandle(token);
+                        return false;
+                    }
+                }
+            }
+        }
+#endif
 
         FileSystemItem *item = nullptr;
 
@@ -127,9 +179,21 @@ namespace Test {
         const std::filesystem::path symlink2_dir_path = std::filesystem::current_path() / "" / symlink2_dir;
         const std::string file_name_symlink2 = "file_from_symlink.txt";
         std::size_t file_size_symlink2 = 0;
+
+        // Windows
+#ifdef _WIN32
+        const bool can_create_windows_symlinks = canCreateWindowsSymlinks();
+#endif
     };
 
     TEST_F(FSItemSymlinkTest, IgnoreSymlinks) {
+#ifdef _WIN32
+        if (!can_create_windows_symlinks)
+        {
+            GTEST_SKIP();
+        }
+#endif
+
         item = new FileSystemItem(base_path, nullptr, false);
 
         EXPECT_TRUE(std::filesystem::is_symlink(base_path / symlink_dir));
@@ -155,6 +219,13 @@ namespace Test {
     }
 
     TEST_F(FSItemSymlinkTest, SymlinkFileAndSymlinkDirectory) {
+#ifdef _WIN32
+        if (!can_create_windows_symlinks)
+        {
+            GTEST_SKIP();
+        }
+#endif
+
         item = new FileSystemItem(base_path, nullptr, true);
 
         EXPECT_TRUE(std::filesystem::is_symlink(base_path / symlink_dir));

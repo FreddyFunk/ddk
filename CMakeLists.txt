@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12...3.24)
+cmake_minimum_required(VERSION 3.14)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -8,6 +8,7 @@ project(DDK
     LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Get Git submodule dependencies
 find_package(Git QUIET)
@@ -37,3 +38,10 @@ endfunction()
 
 add_subdirectory(externals)
 add_subdirectory(src)
+
+option(DDK_TESTS "Build ddk tests" ON)
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MYPROJECT_BUILD_TESTING) AND DDK_TESTS)
+    enable_testing()
+    include(GoogleTest)
+    add_subdirectory(tests)
+endif()

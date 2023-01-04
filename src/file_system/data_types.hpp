@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-namespace FSI::DATA
+namespace DDK::DATA
 {   
     // supported image types
 	enum class ImageType

@@ -40,11 +40,11 @@ static bool getPath(const InputParser* const input, std::filesystem::path& selec
 	return true;
 }
 
-static void printResultsDedup(const FSI::FileSystemInfo* const fsinfo) {
-	std::string result = FSinfoParser::FSinfoDuplicateList(fsinfo);
+static void printResultsDedup(const DDK::FileSystemInfo* const fsinfo) {
+	std::string result = DDK::FSInfoParser::FSinfoDuplicateList(fsinfo);
 	
 	fmt::print("Results for: {}\n", fsinfo->getRootPath().string());
-	fmt::print("{}\n", FSinfoParser::summary(fsinfo));
+	fmt::print("{}\n", DDK::FSInfoParser::summary(fsinfo));
 	fmt::print("{}\n", result);
 }
 
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 	const bool analyzeSymLinks = input.cmdOptionExists("--symlinks");
 
 	// Scan file system structure
-	const FSI::FileSystemInfo fsinfo(path, analyzeSymLinks);
+	const DDK::FileSystemInfo fsinfo(path, analyzeSymLinks);
 
     printResultsDedup(&fsinfo);
 

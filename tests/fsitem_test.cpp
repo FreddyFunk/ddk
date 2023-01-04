@@ -3,12 +3,12 @@
 #include "test_data.hpp"
 #include "fsitem.hpp"
 
+#ifdef _WIN32
+#include "windows_helper.hpp"
+#endif
+
 #include "gtest/gtest.h"
 
-#ifdef _WIN32
-#include <Windows.h>
-#include <stdio.h>
-#endif
 
 namespace DDK {
 namespace Test {
@@ -104,54 +104,6 @@ namespace Test {
             delete item;
         }
 
-#ifdef _WIN32
-        bool canCheckWindowsPermissions(){
-            HANDLE token;
-            if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token))
-            {
-                // The calling process has sufficient privileges to query the token
-                CloseHandle(token);
-                return true;
-            }
-            else
-            {
-                // The calling process does not have sufficient privileges to query the token
-                CloseHandle(token);
-                return false;
-            }
-        }
-        bool canCreateWindowsSymlinks(){
-            if (!canCheckWindowsPermissions())
-            {
-                return false;
-            }
-            HANDLE token;
-            if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token))
-            {
-                LUID luid;
-                if (LookupPrivilegeValue(nullptr, SE_CREATE_SYMBOLIC_LINK_NAME, &luid))
-                {
-                    TOKEN_PRIVILEGES tp;
-                    tp.PrivilegeCount = 1;
-                    tp.Privileges[0].Luid = luid;
-                    tp.Privileges[0].Attributes = 0;
-
-                    DWORD size;
-                    if (AdjustTokenPrivileges(token, FALSE, &tp, sizeof(tp), nullptr, &size))
-                    {
-                        CloseHandle(token);
-                        return true;
-                    }
-                    else
-                    {
-                        CloseHandle(token);
-                        return false;
-                    }
-                }
-            }
-        }
-#endif
-
         FileSystemItem *item = nullptr;
 
         // Setup base directory
@@ -182,7 +134,7 @@ namespace Test {
 
         // Windows
 #ifdef _WIN32
-        const bool can_create_windows_symlinks = canCreateWindowsSymlinks();
+        const bool can_create_windows_symlinks = Windows::canCreateWindowsSymlinks();
 #endif
     };
 

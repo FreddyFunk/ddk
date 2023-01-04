@@ -14,7 +14,7 @@ set_target_properties(gmock PROPERTIES FOLDER externals)
 set_target_properties(gmock_main PROPERTIES FOLDER externals)
 
 macro(package_add_test_with_libraries TESTNAME FILES LIBRARIES)
-    add_executable(${TESTNAME} ${FILES} test_data.hpp)
+    add_executable(${TESTNAME} ${FILES} test_data.hpp windows_helper.hpp windows_helper.cpp)
     # do NOT link against gtest_main due to googletest issue: https://github.com/google/googletest/issues/2157
     target_link_libraries(${TESTNAME} PRIVATE gtest gmock ${LIBRARIES})
     if (WIN32)

@@ -65,6 +65,7 @@ namespace Test {
     TEST_P(FSItemTestFileSystemStructures, CorrectInitializedChildSubdirectory) {
         if (directories_per_depth == 0)
         {
+            return; // return directly to avoid skipping tests spam in test report.
             GTEST_SKIP() << "Skipping CorrectInitializedChildFileInSubdirectory test since directories_per_depth == 0";
         }
 
@@ -96,6 +97,7 @@ namespace Test {
     TEST_P(FSItemTestFileSystemStructures, CorrectInitializedChildFile) {
         if (files_per_directory == 0)
         {
+            return; // return directly to avoid skipping tests spam in test report.
             GTEST_SKIP() << "Skipping CorrectInitializedChildFile test since files_per_directory == 0";
         }
 
@@ -124,10 +126,12 @@ namespace Test {
     TEST_P(FSItemTestFileSystemStructures, CorrectInitializedChildFileInSubdirectory) {
         if (files_per_directory == 0)
         {
+            return; // return directly to avoid skipping tests spam in test report.
             GTEST_SKIP() << "Skipping CorrectInitializedChildFileInSubdirectory test since files_per_directory == 0";
         }
         if (directories_per_depth == 0)
         {
+            return; // return directly to avoid skipping tests spam in test report.
             GTEST_SKIP() << "Skipping CorrectInitializedChildFileInSubdirectory test since directories_per_depth == 0";
         }
 

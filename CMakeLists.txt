@@ -36,6 +36,8 @@ function(replicate_directory_structure target_name)
     endforeach()
 endfunction()
 
+include(externals/cmake-scripts/code-coverage.cmake)
+
 add_subdirectory(externals)
 add_subdirectory(src)
 
@@ -45,3 +47,5 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MYPROJECT_BUILD_TESTING) AND DDK
     include(GoogleTest)
     add_subdirectory(tests)
 endif()
+
+option(CODE_COVERAGE "Enable coverage reporting" OFF)

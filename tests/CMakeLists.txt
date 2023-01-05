@@ -17,6 +17,8 @@ macro(package_add_test_with_libraries TESTNAME FILES LIBRARIES)
     add_executable(${TESTNAME} ${FILES} test_data.hpp)
     # do NOT link against gtest_main due to googletest issue: https://github.com/google/googletest/issues/2157
     target_link_libraries(${TESTNAME} PRIVATE gtest gmock ${LIBRARIES})
+    #target_code_coverage(${TESTNAME} EXCLUDE ${CMAKE_BINARY_DIR}/tests/* ${CMAKE_BINARY_DIR}/externals/*)
+    target_code_coverage(${TESTNAME})
     if (WIN32)
         # fix .dll path for googletest dll files
         add_custom_command(

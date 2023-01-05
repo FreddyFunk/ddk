@@ -2,6 +2,7 @@
 
 ![build](https://github.com/FreddyFunk/ddk/actions/workflows/ci.yml/badge.svg?branch=master)
 ![CodeQL](https://github.com/FreddyFunk/ddk/actions/workflows/codeql.yml/badge.svg?branch=master)
+[![codecov](https://codecov.io/gh/FreddyFunk/ddk/branch/master/graph/badge.svg?token=EE4DVMP2I7)](https://codecov.io/gh/FreddyFunk/ddk)
 
 
 ## About

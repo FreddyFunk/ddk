@@ -85,7 +85,7 @@ namespace Test {
             // Create symlinks
             try
             {
-                std::filesystem::create_symlink(symlink_dir_path, base_path / symlink_dir);
+                std::filesystem::create_directory_symlink(symlink_dir_path, base_path / symlink_dir);
                 std::filesystem::create_symlink(symlink2_dir_path / file_name_symlink2, base_path / file_name_symlink2);
             }
             catch (const std::system_error& e)

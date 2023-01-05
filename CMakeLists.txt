@@ -44,10 +44,11 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MYPROJECT_BUILD_TESTING) AND DDK
     
     option(DDK_ENABLE_COVERAGE_REPORTING "Enable coverage reporting." OFF)
     if (DDK_ENABLE_COVERAGE_REPORTING)
-    set(DDK_COVERAGE_FLAGS "-g -O0 --coverage")
-    set(CMAKE_SHARED_LINKER_FLAGS --coverage)
-    set(CMAKE_C_FLAGS "${DDK_COVERAGE_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${DDK_COVERAGE_C_FLAGS}")
+        set(DDK_COVERAGE_FLAGS "-g -O0 --coverage")
+        set(CMAKE_SHARED_LINKER_FLAGS --coverage)
+        set(CMAKE_C_FLAGS "${DDK_COVERAGE_C_FLAGS}")
+        set(CMAKE_CXX_FLAGS "${DDK_COVERAGE_C_FLAGS}")
+    endif()
 
     enable_testing()
     include(GoogleTest)

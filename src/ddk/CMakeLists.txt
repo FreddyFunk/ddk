@@ -12,3 +12,5 @@ replicate_directory_structure(${PROJECT_NAME}::ddk)
 
 # link dependencies
 target_link_libraries(ddk PRIVATE file_system fmt::fmt)
+
+target_code_coverage(ddk)

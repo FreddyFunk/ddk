@@ -86,7 +86,7 @@ namespace Data {
     // recursion_depth <= 0 is not allowed
     void setupDirectory(std::filesystem::path current_path, std::size_t directories_per_depth, std::size_t files_per_directory, 
         std::size_t recursion_depth, std::size_t current_recursion_depth = 0){
-        assert(recursion_depth == 0);
+        assert(recursion_depth != 0);
 
         if (directories_per_depth == 0)
         {

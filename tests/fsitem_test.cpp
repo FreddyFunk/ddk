@@ -1,11 +1,8 @@
 #include <algorithm>
+#include <system_error>
 
 #include "test_data.hpp"
 #include "fsitem.hpp"
-
-#ifdef _WIN32
-#include "windows_helper.hpp"
-#endif
 
 #include "gtest/gtest.h"
 
@@ -86,8 +83,24 @@ namespace Test {
             file_size_symlink2 = std::filesystem::file_size(symlink2_dir_path / file_name_symlink2);
 
             // Create symlinks
-            std::filesystem::create_symlink(symlink_dir_path, base_path / symlink_dir);
-            std::filesystem::create_symlink(symlink2_dir_path / file_name_symlink2, base_path / file_name_symlink2);
+            try
+            {
+                std::filesystem::create_symlink(symlink_dir_path, base_path / symlink_dir);
+                std::filesystem::create_symlink(symlink2_dir_path / file_name_symlink2, base_path / file_name_symlink2);
+            }
+            catch (const std::system_error& e)
+            {
+                // Windows specific error: "create_symlink: A required privilege is not held by the client."
+                if (e.code().value() == 1314)
+                {
+					system_error = "\"create_symlink: A required privilege is not held by the client.\" This is a common issue when testing symlinks on Windows. Try executing this test as an administrator.";
+					can_create_windows_symlinks = false;
+				}
+                else
+                {
+                    throw;
+                }
+            }
         }
 
         ~FSItemSymlinkTest() override {
@@ -133,18 +146,15 @@ namespace Test {
         std::size_t file_size_symlink2 = 0;
 
         // Windows
-#ifdef _WIN32
-        const bool can_create_windows_symlinks = Windows::canCreateWindowsSymlinks();
-#endif
+        bool can_create_windows_symlinks = true;
+        std::string system_error = "";
     };
 
     TEST_F(FSItemSymlinkTest, IgnoreSymlinks) {
-#ifdef _WIN32
         if (!can_create_windows_symlinks)
         {
-            GTEST_SKIP();
+            GTEST_SKIP() << system_error;
         }
-#endif
 
         item = new FileSystemItem(base_path, nullptr, false);
 
@@ -171,12 +181,10 @@ namespace Test {
     }
 
     TEST_F(FSItemSymlinkTest, SymlinkFileAndSymlinkDirectory) {
-#ifdef _WIN32
         if (!can_create_windows_symlinks)
         {
-            GTEST_SKIP();
+            GTEST_SKIP() << system_error;
         }
-#endif
 
         item = new FileSystemItem(base_path, nullptr, true);
 

@@ -17,3 +17,5 @@ replicate_directory_structure(${PROJECT_NAME}::file_system)
 target_include_directories(file_system INTERFACE ./)
 
 target_link_libraries(file_system PRIVATE xxHash::xxhash portable-memory-mapping)
+
+target_code_coverage(file_system)

@@ -41,9 +41,6 @@ add_subdirectory(src)
 
 option(DDK_TESTS "Build ddk tests" ON)
 if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MYPROJECT_BUILD_TESTING) AND DDK_TESTS)
-    include(${CMAKE_SOURCE_DIR}/externals/cmake-scripts/code-coverage.cmake)
-    set(CODE_COVERAGE ON)
-    
     enable_testing()
     include(GoogleTest)
     add_subdirectory(tests)

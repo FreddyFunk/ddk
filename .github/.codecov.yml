@@ -1,8 +1,9 @@
 ignore:
+ - "externals"
  - "tests"
  - "src/testing"
  - "perf"
  - "**/*_test.cpp"
  - "**/*_test.c"
 coverage:
- range: 50..95
+ range: 1..100

@@ -1,0 +1,81 @@
+---
+name: coverage
+on: [push, pull_request]
+jobs:
+  # Regular C build with two compilers, using cmakeflags:
+  build_using_compiler_in_cmakeflags:
+    strategy:
+        matrix:
+          compiler:
+            - g++
+            - clang++
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # This examples uses the appropriate cmakeflags
+      - uses: docker://lpenz/ghaction-cmake:0.16
+        with:
+          cmakeflags: ${{ format('-DCMAKE_C_COMPILER={0}', matrix.compiler) }}
+  # Coverage with codecov:
+  codecov:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker://lpenz/ghaction-cmake:0.16
+        with:
+          preset: coverage
+      # ghaction-cmake works well with the github action
+      # provided by codecov:
+      - uses: codecov/codecov-action@v1
+        with:
+          fail_ci_if_error: true
+  # Coverage with coveralls:
+  coveralls:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker://lpenz/ghaction-cmake:0.16
+        with:
+          preset: coverage
+      # ghaction-cmake works well with the github action
+      # provided by coveralls if you pass path-to-lcov:
+      - uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: lcov.info
+  # Static analyzers:
+  linters:
+    strategy:
+        matrix:
+          preset: [ cppcheck, iwyu, clang-tidy ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker://lpenz/ghaction-cmake:0.16
+        with:
+          preset: ${{ matrix.preset }}
+  # Tests with various sanitizers and valgrind:
+  test:
+    strategy:
+        matrix:
+          preset:
+            - clang-sanitize-address
+            - clang-sanitize-memory
+            - clang-sanitize-undefined
+            - clang-sanitize-dataflow
+            - clang-sanitize-safe-stack
+            - valgrind
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker://lpenz/ghaction-cmake:0.16
+        with:
+          preset: ${{ matrix.preset }}
+  # Test installation:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker://lpenz/ghaction-cmake:0.16
+        with:
+          preset: install

@@ -47,14 +47,16 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MYPROJECT_BUILD_TESTING) AND DDK
     # is older than that, you will need to find something newer.  For
     # correct reporting, we always turn off all optimizations.
     if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-        set(NNG_COVERAGE_C_FLAGS "-g -O0 --coverage")
+        set(DDK_COVERAGE_C_FLAGS "-g -O0 --coverage")
         set(CMAKE_SHARED_LINKER_FLAGS --coverage)
     elseif (CMAKE_C_COMPILER_ID MATCHES "Clang")
-        set(NNG_COVERAGE_C_FLAGS "-g -O0 --coverage")
+        set(DDK_COVERAGE_C_FLAGS "-g -O0 --coverage")
         set(CMAKE_SHARED_LINKER_FLAGS --coverage)
     else ()
         message(FATAL_ERROR "Unable to enable coverage for your compiler.")
     endif ()
+    set(CMAKE_C_FLAGS "${DDK_COVERAGE_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${DDK_COVERAGE_C_FLAGS}")
 endif ()
 
     enable_testing()

@@ -13,7 +13,7 @@ namespace DDK
 		m_size = 0;
 		m_childFilesCount = 0;
 		m_childSubDirectoriesCount = 0;
-		m_childSymlinksCount = 0;
+		m_childSymlinksCount = std::filesystem::is_symlink(m_path) ? 1 : 0;
 		m_hash = 0;
 
 		m_type = std::filesystem::status(path).type();
@@ -51,6 +51,11 @@ namespace DDK
 		try
 		{
 			for (const auto& directoryEntry : std::filesystem::directory_iterator(m_path)) {
+				if (!m_analyzeSymlinks && std::filesystem::is_symlink(directoryEntry))
+				{
+					continue;
+				}
+				
 				FileSystemItem* item = new FileSystemItem(directoryEntry.path(), this, m_analyzeSymlinks);
 				m_children.push_back(item);
 			}
@@ -65,6 +70,7 @@ namespace DDK
 		for (const FileSystemItem* item : m_children)
 		{
 			m_size += item->getSizeInBytes();
+			m_childSymlinksCount += item->m_childSymlinksCount;
 
 			switch (item->getItemType()){
 				case std::filesystem::file_type::directory:
@@ -78,15 +84,11 @@ namespace DDK
 					m_childFilesCount++;
 					break;
 				}
-				case std::filesystem::file_type::symlink:
-				{
-					m_childSymlinksCount += 1 + item->m_childSymlinksCount;
-					break;
-				}
 				default:
 				{
 					break;
 				}
+				
 			}
 		}
 		return true;

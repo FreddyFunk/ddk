@@ -2,12 +2,12 @@
 #include <vector>
 
 class InputParser {
-public:
-	InputParser(int& argc, char** argv);
+  public:
+    InputParser(int &argc, char **argv);
 
-	const std::string getCmdOption(const std::string& option) const;
-	bool cmdOptionExists(const std::string& option) const;
+    const std::string getCmdOption(const std::string &option) const;
+    bool cmdOptionExists(const std::string &option) const;
 
-private:
-	std::vector <std::string> m_tokens;
+  private:
+    std::vector<std::string> m_tokens;
 };

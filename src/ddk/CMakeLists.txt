@@ -1,10 +1,10 @@
-add_executable(ddk
-    ddk.cpp
-    fsinfo_parser.cpp
-    fsinfo_parser.hpp
-    input_params_parser.cpp
-    input_params_parser.hpp
-)
+add_executable(
+  ddk
+  ddk.cpp
+  fsinfo_parser.cpp
+  fsinfo_parser.hpp
+  input_params_parser.cpp
+  input_params_parser.hpp)
 
 add_executable(${PROJECT_NAME}::ddk ALIAS ddk)
 

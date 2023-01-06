@@ -25,8 +25,8 @@ jobs:
 
     - name: Run cmake-format
       run: cmake-format --version
-          && cmake-format -i $(find . -type f -name "*.cmake" -not -path "./externals/*")
-          && cmake-format -i $(find . -type f -name "CMakeLists.txt" -not -path "./externals/*")
+          && cmake-format -c ./.cmake-format.py -i $(find . -type f -name "*.cmake" -not -path "./externals/*")
+          && cmake-format -c ./.cmake-format.py -i $(find . -type f -name "CMakeLists.txt" -not -path "./externals/*")
           && git diff --exit-code
 
     - name: Install clang-format

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <limits>
 #include <system_error>
 
 #include "test_data.hpp"
@@ -34,10 +35,108 @@ namespace Test {
         const std::filesystem::path base_path = std::filesystem::current_path() / "" / test_directory;
     };
 
-    TEST_F(FSItemTest, UseInvalidPath) {
+    TEST_F(FSItemTest, DuplicateTest)
+    {
+        std::ofstream outfile(base_path / "file_0.txt");
+        outfile << "Testing..." << std::endl;
+        outfile.close();
+
+        std::filesystem::copy(base_path / "file_0.txt", base_path / "file_0_copy.txt");
+
+        item = new FileSystemItem(base_path, nullptr);
+        
+        const auto children = item->getChildren();
+        const auto file_0_it = std::find_if(children.begin(), children.end(), [](const auto& child) {return child->getItemName() == "file_0.txt";});
+        auto file_0 = children.at(std::distance(children.begin(), file_0_it));
+
+        const auto file_0_copy_it = std::find_if(children.begin(), children.end(), [](const auto& child) {return child->getItemName() == "file_0_copy.txt";});
+        auto file_0_copy = children.at(std::distance(children.begin(), file_0_copy_it));
+
+        ASSERT_NE(file_0, file_0_copy);
+        
+        std::set<FileSystemItem*> duplicates{};
+
+        file_0->addDuplicate(file_0_copy);
+        duplicates = file_0->getDuplicates();
+        EXPECT_TRUE(duplicates.find(file_0_copy) != duplicates.end());
+        EXPECT_TRUE(file_0_copy->getDuplicates().empty());
+
+        file_0_copy->addDuplicate(file_0);
+        duplicates = file_0_copy->getDuplicates();
+        EXPECT_TRUE(duplicates.find(file_0) != duplicates.end());
+
+        EXPECT_TRUE(file_0->getDuplicates().size() == 1);
+        EXPECT_TRUE(file_0_copy->getDuplicates().size() == 1);
+
+        duplicates = file_0->getDuplicates();
+        EXPECT_FALSE(duplicates.find(file_0) != duplicates.end());
+        duplicates = file_0_copy->getDuplicates();
+        EXPECT_FALSE(duplicates.find(file_0_copy) != duplicates.end());
+    }
+
+    TEST_F(FSItemTest, PotentialDuplicateTest)
+    {
+        std::ofstream outfile(base_path / "file_0.txt");
+        outfile << "Testing..." << std::endl;
+        outfile.close();
+
+        std::ofstream outfile2(base_path / "file_0_copy.txt");
+        outfile2 << "Testing,,," << std::endl;
+        outfile2.close();
+
+        item = new FileSystemItem(base_path, nullptr);
+        
+        const auto children = item->getChildren();
+        const auto file_0_it = std::find_if(children.begin(), children.end(), [](const auto& child) {return child->getItemName() == "file_0.txt";});
+        auto file_0 = children.at(std::distance(children.begin(), file_0_it));
+
+        const auto file_0_copy_it = std::find_if(children.begin(), children.end(), [](const auto& child) {return child->getItemName() == "file_0_copy.txt";});
+        auto file_0_copy = children.at(std::distance(children.begin(), file_0_copy_it));
+
+        ASSERT_NE(file_0, file_0_copy);
+        
+        std::set<FileSystemItem*> duplicates{};
+
+        file_0->addPotentialDuplicate(file_0_copy);
+        duplicates = file_0->getPotentialDuplicates();
+        EXPECT_TRUE(duplicates.find(file_0_copy) != duplicates.end());
+        EXPECT_TRUE(file_0_copy->getPotentialDuplicates().empty());
+
+        file_0_copy->addPotentialDuplicate(file_0);
+        duplicates = file_0_copy->getPotentialDuplicates();
+        EXPECT_TRUE(duplicates.find(file_0) != duplicates.end());
+
+        EXPECT_TRUE(file_0->getPotentialDuplicates().size() == 1);
+        EXPECT_TRUE(file_0_copy->getPotentialDuplicates().size() == 1);
+
+        duplicates = file_0->getPotentialDuplicates();
+        EXPECT_FALSE(duplicates.find(file_0) != duplicates.end());
+        duplicates = file_0_copy->getPotentialDuplicates();
+        EXPECT_FALSE(duplicates.find(file_0_copy) != duplicates.end());
+    }
+
+    TEST_F(FSItemTest, StoreHashValue)
+    {   
+        item = new FileSystemItem(base_path, nullptr);
+
+        item->setHash(std::numeric_limits<uint64_t>::min());
+        EXPECT_EQ(item->getHash(), std::numeric_limits<uint64_t>::min());
+        item->setHash(0);
+        EXPECT_EQ(item->getHash(), 0);
+        item->setHash(1);
+        EXPECT_EQ(item->getHash(), 1);
+        item->setHash(123);
+        EXPECT_EQ(item->getHash(), 123);
+        item->setHash(1);
+        EXPECT_NE(item->getHash(), 123);
+        item->setHash(std::numeric_limits<uint64_t>::max());
+        EXPECT_EQ(item->getHash(), std::numeric_limits<uint64_t>::max());
+    }
+
+    TEST_F(FSItemTest, UseInvalidPath)
+    {
         FileSystemItem broken_item({}, nullptr);
-        EXPECT_EQ(broken_item.getError(), FileSystemError::PATH_DOES_NOT_EXIST) 
-        << "expected PATH_DOES_NOT_EXIST error";
+        EXPECT_EQ(broken_item.getError(), FileSystemError::PATH_DOES_NOT_EXIST) << "expected PATH_DOES_NOT_EXIST error";
     }
 
     TEST_F(FSItemTest, SpecialCharacters) {

@@ -7,6 +7,7 @@
 
 namespace DDK
 {
+	// TODO: replace with std::system_error
 	enum class FileSystemError
 	{
 		NO_ERROR,

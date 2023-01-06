@@ -36,11 +36,31 @@ function(replicate_directory_structure target_name)
     endforeach()
 endfunction()
 
+# Clang Format
+include(externals/cmake-scripts/formatting.cmake)
+file(GLOB_RECURSE ALL_CODE_FILES
+    ${PROJECT_SOURCE_DIR}/src/*.[ch]pp
+    ${PROJECT_SOURCE_DIR}/src/*.[ch]
+    ${PROJECT_SOURCE_DIR}/tests/*.[h]pp
+    ${PROJECT_SOURCE_DIR}/tests/*.[h]
+)
+clang_format(format ${ALL_CODE_FILES})
+
+# CMake Format
+file(GLOB_RECURSE CMAKE_FILES
+    ${PROJECT_SOURCE_DIR}/CMakeLists.txt
+)
+cmake_format(cmake-format ${CMAKE_FILES})
+
+# Code Coverage
 include(externals/cmake-scripts/code-coverage.cmake)
+option(CODE_COVERAGE "Enable coverage reporting" OFF)
+
 
 add_subdirectory(externals)
 add_subdirectory(src)
 
+# Tests
 option(DDK_TESTS "Build ddk tests" ON)
 if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MYPROJECT_BUILD_TESTING) AND DDK_TESTS)
     enable_testing()
@@ -48,4 +68,3 @@ if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MYPROJECT_BUILD_TESTING) AND DDK
     add_subdirectory(tests)
 endif()
 
-option(CODE_COVERAGE "Enable coverage reporting" OFF)

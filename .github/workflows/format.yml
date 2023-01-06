@@ -1,0 +1,41 @@
+name: Formatting Source Code
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install cmake-format
+      run: sudo pip install cmake-format
+
+    - name: Run cmake-format
+      run: cmake-format --version
+          && cmake-format -i $(find . -type f -name "*.cmake" -not -path "./externals/*")
+          && cmake-format -i $(find . -type f -name "CMakeLists.txt" -not -path "./externals/*")
+          && git diff --exit-code
+
+    - name: Install clang-format
+      run: sudo apt-get update -q && sudo apt-get install clang-format -q -y
+    
+    - name: Run clang-format
+      run: clang-format --version
+          && clang-format -i $(find . -type f -name "*.c" -not -path "./externals/*")
+          && clang-format -i $(find . -type f -name "*.cpp" -not -path "./externals/*")
+          && clang-format -i $(find . -type f -name "*.h" -not -path "./externals/*")
+          && clang-format -i $(find . -type f -name "*.hpp" -not -path "./externals/*")
+          && git diff --exit-code

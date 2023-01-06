@@ -28,11 +28,6 @@ namespace DDK
 		{
 			analyzeChildren();
 		}
-		else if(m_type == std::filesystem::file_type::symlink) {
-			if(m_analyzeSymlinks){	
-				analyzeChildren();
-			}
-		}
 		else {
 			m_size = std::filesystem::file_size(m_path);
 		}
@@ -48,47 +43,39 @@ namespace DDK
 	}
 
 	bool FileSystemItem::analyzeChildren() {
-		try
+		for (const auto &directoryEntry : std::filesystem::directory_iterator(m_path))
 		{
-			for (const auto& directoryEntry : std::filesystem::directory_iterator(m_path)) {
-				if (!m_analyzeSymlinks && std::filesystem::is_symlink(directoryEntry))
+			FileSystemItem* item;
+			try
+			{
+				if ((!m_analyzeSymlinks && std::filesystem::is_symlink(directoryEntry))
+					&& (std::filesystem::status(directoryEntry).type() != std::filesystem::file_type::directory
+					|| std::filesystem::status(directoryEntry).type() != std::filesystem::file_type::regular))
 				{
 					continue;
 				}
-				
-				FileSystemItem* item = new FileSystemItem(directoryEntry.path(), this, m_analyzeSymlinks);
+
+				item = new FileSystemItem(directoryEntry.path(), this, m_analyzeSymlinks);
 				m_children.push_back(item);
 			}
-		}
-		catch (const std::exception& e)
-		{
-			//std::cout << e.what() << std::endl;
-			// TODO : proper error handling
-			m_size = 0;
-			return false;
+			catch (const std::exception &e)
+			{
+				delete item;
+				// permission denied, file deleted, etc.
+				// ignore this file system entry and continue
+			}
 		}
 		for (const FileSystemItem* item : m_children)
 		{
 			m_size += item->getSizeInBytes();
 			m_childSymlinksCount += item->m_childSymlinksCount;
 
-			switch (item->getItemType()){
-				case std::filesystem::file_type::directory:
-				{
-					m_childSubDirectoriesCount += 1 + item->m_childSubDirectoriesCount;
-					m_childFilesCount += item->m_childFilesCount;
-					break;
-				}
-				case std::filesystem::file_type::regular:
-				{
-					m_childFilesCount++;
-					break;
-				}
-				default:
-				{
-					break;
-				}
-				
+			if (item->getItemType() == std::filesystem::file_type::directory){
+				m_childSubDirectoriesCount += 1 + item->m_childSubDirectoriesCount;
+				m_childFilesCount += item->m_childFilesCount;
+			}
+			else if (item->getItemType() == std::filesystem::file_type::regular){
+				m_childFilesCount++;
 			}
 		}
 		return true;
@@ -136,26 +123,11 @@ namespace DDK
 	}
 
 	std::string FileSystemItem::getItemName() const {
-		try
-		{
-			return m_path.filename().string();
-		}
-		catch (const std::exception& e)
-		{
-			return std::string(e.what());
-		}
+		return m_path.filename().string();
 	}
 
-	std::string FileSystemItem::getPathAsString() const
-	{
-		try
-		{
-			return m_path.string();
-		}
-		catch (const std::exception& e)
-		{
-			return std::string(e.what());
-		}
+	std::string FileSystemItem::getPathAsString() const {
+		return m_path.string();
 	}
 
 	FileSystemError FileSystemItem::getError() const

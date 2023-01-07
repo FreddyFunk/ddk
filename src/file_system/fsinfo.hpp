@@ -14,7 +14,6 @@ class FileSystemInfo {
     std::vector<FileSystemItem *> getAllFileSystemItems(bool sortedBySize = false,
                                                         bool onlyFiles = false) const;
     std::vector<std::vector<FileSystemItem *>> getDuplicates() const;
-    std::filesystem::space_info getSpaceInfo() const;
     std::size_t getDirectoriesCount() const;
     std::size_t getSymlinksCount() const;
     std::size_t getFilesCount() const;
@@ -25,7 +24,6 @@ class FileSystemInfo {
   private:
     const FileSystemItem *const m_root;
     const bool m_analyzeSymLinks;
-    const std::filesystem::space_info m_spaceInfo;
 
     std::vector<FileSystemItem *> getFileSystemItemsRecursive(
         const FileSystemItem *const item) const;

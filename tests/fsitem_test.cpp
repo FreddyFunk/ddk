@@ -17,9 +17,7 @@ class FSItemTest : public testing::Test {
 
     ~FSItemTest() override { std::filesystem::remove_all(base_path); }
 
-    void SetUp() override {
-        // item = new FileSystemItem(base_path, nullptr);
-    }
+    void SetUp() override {}
 
     void TearDown() override { delete item; }
 

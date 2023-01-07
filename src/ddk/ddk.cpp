@@ -3,22 +3,43 @@
 #include <algorithm>
 #include <fmt/core.h>
 
-static void printHelpOption() {
+static void printHelpOptions() {
     fmt::print(fmt::format(
         R"(DeDuplicationKit (ddk) is a simple command line tool for finding duplicate files at high speed.
 
 Usage: ddk [OPTION]...
 
 Options:
--h            display this help and exit
--p PATH       search for duplicates in PATH (default: current working directory)
---symlinks    follow symbolic links during file search (default: deactivated)
+-h, --help      display this manual and exit
+
+-v, --version   show version
+
+-p PATH         search for duplicates in PATH (default: current working
+                directory)
+
+-f PATH         search for duplicates of files passed by "-f PATH" in 
+                "-p PATH"
+
+-d              show detailed information about deduplication scan
+
+-l              follow symbolic links during deduplication scan
+                (default: deactivated)‚
+
+-r              remove duplicates (PERMANENTLY DELETES FILES! USE WITH
+                CAUTION!)
+
+-ri             go through each duplicate one by one and let the user
+                select which files should be deleted
 
 Examples:
 ddk
-ddk -s
-ddk -p "~/Documents" --symlinks
-ddk -p "./path/to/files/")"));
+ddk -p "~/Documents" -l
+ddk -p "/path/to/files/" -d
+ddk -f "/path/to/file1.txt"
+ddk -p "./path/to/files/" -f "./path/to/files/file1.txt"
+ddk -p "./path/to/files/" -r
+ddk -p "./path/to/files/" -ri
+)"));
 }
 
 static bool getPath(const InputParser *const input, std::filesystem::path &selectedPath) {
@@ -52,7 +73,7 @@ int main(int argc, char *argv[]) {
     const InputParser input(argc, argv);
 
     if (input.cmdOptionExists("-h") || input.cmdOptionExists("--help")) {
-        printHelpOption();
+        printHelpOptions();
         return 0;
     }
 

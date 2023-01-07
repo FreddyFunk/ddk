@@ -26,6 +26,7 @@ jobs:
 
     - name: Install report tools
       run: sudo apt-get update -q
+        && sudo apt-get upgrade -q -y
         && sudo apt-get install lcov -q -y
 
     - name: Configure CMake

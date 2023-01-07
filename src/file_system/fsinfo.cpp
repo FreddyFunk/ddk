@@ -5,7 +5,6 @@
 namespace DDK {
 FileSystemInfo::FileSystemInfo(const std::filesystem::path &path, bool analyzeSymLinks) :
     m_analyzeSymLinks(analyzeSymLinks),
-    m_spaceInfo(std::filesystem::space(path)),
     m_root(new FileSystemItem(path, nullptr, analyzeSymLinks)) {}
 
 FileSystemInfo::~FileSystemInfo() { delete m_root; }
@@ -58,8 +57,6 @@ std::vector<std::vector<FileSystemItem *>> FileSystemInfo::getDuplicates() const
     FILTER::DEDUPLICATION::tagDuplicateBinaries(items);
     return FILTER::DEDUPLICATION::getDuplicateClustersSorted(items);
 }
-
-std::filesystem::space_info FileSystemInfo::getSpaceInfo() const { return m_spaceInfo; }
 
 std::size_t FileSystemInfo::getDirectoriesCount() const {
     return m_root->getChildSubDirectoriesCount();

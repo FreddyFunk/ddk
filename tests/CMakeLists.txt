@@ -47,3 +47,4 @@ macro(package_add_test_with_libraries TESTNAME FILES LIBRARIES)
 endmacro()
 
 package_add_test_with_libraries(fsitem_test fsitem_test.cpp file_system)
+package_add_test_with_libraries(fsinfo_test fsinfo_test.cpp file_system)

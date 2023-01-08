@@ -5,7 +5,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 project(
   DDK
   VERSION 0.0.1
-  DESCRIPTION "DeDupKit"
+  DESCRIPTION "DeDuplicationKit (ddk)"
   LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -26,6 +26,9 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
     )
   endif()
 endif()
+
+# apply project version
+include(cmake/GenerateVersion.cmake)
 
 # This function replicates the directory hierarchy of a target, so that the
 # layout of the files in IDEs match

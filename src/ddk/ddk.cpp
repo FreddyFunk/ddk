@@ -1,5 +1,6 @@
 #include "fsinfo_parser.hpp"
 #include "input_params_parser.hpp"
+#include "version.h"
 #include <algorithm>
 #include <fmt/core.h>
 
@@ -20,6 +21,8 @@ ddk -s
 ddk -p "~/Documents" --symlinks
 ddk -p "./path/to/files/")"));
 }
+
+static void printVersion() { fmt::print("{}\n", DDK_VERSION); }
 
 static bool getPath(const InputParser *const input, std::filesystem::path &selectedPath) {
     if (!input->cmdOptionExists("-p")) {
@@ -53,6 +56,11 @@ int main(int argc, char *argv[]) {
 
     if (input.cmdOptionExists("-h") || input.cmdOptionExists("--help")) {
         printHelpOption();
+        return 0;
+    }
+
+    if (input.cmdOptionExists("-v") || input.cmdOptionExists("--version")) {
+        printVersion();
         return 0;
     }
 

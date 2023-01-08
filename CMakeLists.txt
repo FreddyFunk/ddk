@@ -27,6 +27,9 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   endif()
 endif()
 
+# apply project version
+include(cmake/GenerateVersion.cmake)
+
 # This function replicates the directory hierarchy of a target, so that the
 # layout of the files in IDEs match
 function(replicate_directory_structure target_name)

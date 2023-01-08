@@ -1,0 +1,3 @@
+#pragma once
+
+#define DDK_VERSION "@PROJECT_VERSION@"

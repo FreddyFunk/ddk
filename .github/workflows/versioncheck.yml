@@ -13,6 +13,7 @@ jobs:
 
     env:
       project_name: "DDK"
+      failed: true
 
     steps:
     - uses: actions/checkout@v3
@@ -41,17 +42,30 @@ jobs:
         IFS='.' read -r -a master_parts <<< "$master"
 
         # Compare the parts of the version strings
-        if [[ "${current_parts[0]}" -lt "${master_parts[0]}" ]]; then
+        if [[ "${current_parts[0]}" -gt "${master_parts[0]}" ]]; then
+          # Current major version is greater
+          echo "Current version is newer"
+        elif [[ "${current_parts[0]}" -lt "${master_parts[0]}" ]]; then
           # Current major version is lesser
           echo "Master version is newer. Please update the version number in CMakeLists.txt according to Semantic Versioning 2.0.0 (https://semver.org/)."
           exit 1
+        elif [[ "${current_parts[1]}" -gt "${master_parts[1]}" ]]; then
+          # Current minor version is greater
+          echo "Current version is newer"
         elif [[ "${current_parts[1]}" -lt "${master_parts[1]}" ]]; then
           # Current minor version is lesser
           echo "Master version is newer. Please update the version number in CMakeLists.txt according to Semantic Versioning 2.0.0 (https://semver.org/)."
           exit 1
+        elif [[ "${current_parts[2]}" -gt "${master_parts[2]}" ]]; then
+          # Current patch version is greater
+          echo "Current version is newer"
         elif [[ "${current_parts[2]}" -lt "${master_parts[2]}" ]]; then
           # Current patch version is lesser
           echo "Master version is newer. Please update the version number in CMakeLists.txt according to Semantic Versioning 2.0.0 (https://semver.org/)."
+          exit 1
+        else
+          # Versions are equal
+          echo "Versions are equal. Please update the version number in CMakeLists.txt according to Semantic Versioning 2.0.0 (https://semver.org/)."
           exit 1
         fi
 

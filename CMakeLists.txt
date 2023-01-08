@@ -4,7 +4,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 project(
   DDK
-  VERSION 0.0.5
+  VERSION 0.0.6
   DESCRIPTION "DeDuplicationKit (ddk)"
   LANGUAGES CXX)
 

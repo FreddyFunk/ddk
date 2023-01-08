@@ -25,10 +25,13 @@ jobs:
         ref: master
 
     - name: Get master semver
-      run: current=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt | sed 's/[^0-9.]*//g')
+      run: master=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt | sed 's/[^0-9.]*//g')
     
     - name: Compare semver
       run: |
+        echo "master: $master"
+        echo "current: $current"
+        
         # Split the current version into an array of parts
         IFS='.' read -r -a current_parts <<< "$current"
 

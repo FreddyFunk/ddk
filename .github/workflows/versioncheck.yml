@@ -1,0 +1,70 @@
+name: Check Semantic Versioning
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  check-semver:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ubuntu-latest
+
+    env:
+      project_name: "DDK"
+      failed: true
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Get current semver
+      run: semver=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt)
+        && echo "current=$semver" >> $GITHUB_ENV
+    
+    - uses: actions/checkout@v3
+      with:
+        ref: master
+
+    - name: Get master semver
+      run: semver=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt)
+        && echo "master=$semver" >> $GITHUB_ENV
+    
+    - name: Compare semver
+      run: |
+        echo "master: $master"
+        echo "current: $current"
+
+        # Split the current version into an array of parts
+        IFS='.' read -r -a current_parts <<< "$current"
+
+        # Split the master version into an array of parts
+        IFS='.' read -r -a master_parts <<< "$master"
+
+        # Compare the parts of the version strings
+        if [[ "${current_parts[0]}" -gt "${master_parts[0]}" ]]; then
+          # Current major version is greater
+          echo "Current version is newer"
+        elif [[ "${current_parts[0]}" -lt "${master_parts[0]}" ]]; then
+          # Current major version is lesser
+          echo "Master version is newer. Please update the version number in CMakeLists.txt according to Semantic Versioning 2.0.0 (https://semver.org/)."
+          exit 1
+        elif [[ "${current_parts[1]}" -gt "${master_parts[1]}" ]]; then
+          # Current minor version is greater
+          echo "Current version is newer"
+        elif [[ "${current_parts[1]}" -lt "${master_parts[1]}" ]]; then
+          # Current minor version is lesser
+          echo "Master version is newer. Please update the version number in CMakeLists.txt according to Semantic Versioning 2.0.0 (https://semver.org/)."
+          exit 1
+        elif [[ "${current_parts[2]}" -gt "${master_parts[2]}" ]]; then
+          # Current patch version is greater
+          echo "Current version is newer"
+        elif [[ "${current_parts[2]}" -lt "${master_parts[2]}" ]]; then
+          # Current patch version is lesser
+          echo "Master version is newer. Please update the version number in CMakeLists.txt according to Semantic Versioning 2.0.0 (https://semver.org/)."
+          exit 1
+        else
+          # Versions are equal
+          echo "Versions are equal. Please update the version number in CMakeLists.txt according to Semantic Versioning 2.0.0 (https://semver.org/)."
+          exit 1
+        fi

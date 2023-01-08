@@ -13,8 +13,6 @@ jobs:
 
     env:
       project_name: "DDK"
-      current: "0.0.0"
-      master: "0.0.0"
 
     steps:
     - uses: actions/checkout@v3

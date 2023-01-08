@@ -17,18 +17,17 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Debug current semver
-      run: awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt
-
     - name: Get current semver
-      run: export current=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt)
+      run: semver=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt)
+        && echo "current=$semver" >> $GITHUB_ENV
     
     - uses: actions/checkout@v3
       with:
         ref: master
 
     - name: Get master semver
-      run: export master=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt)
+      run: semver=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt)
+        && echo "master=$semver" >> $GITHUB_ENV
     
     - name: Compare semver
       run: |

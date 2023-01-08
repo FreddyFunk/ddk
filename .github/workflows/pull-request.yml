@@ -1,0 +1,121 @@
+name: Label Pull Requests
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    types:
+      - opened
+      - reopened
+      - edited
+      - synchronize
+
+jobs:
+  label_pull_request:
+    runs-on: ubuntu-latest
+
+    env:
+      project_name: "DDK"
+
+    permissions:
+      issues: write
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Get current semver
+      run: semver=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt)
+        && echo "current=$semver" >> $GITHUB_ENV
+    
+    - uses: actions/checkout@v3
+      with:
+        ref: main
+
+    - name: Get main semver
+      run: semver=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt)
+        && echo "main=$semver" >> $GITHUB_ENV
+    
+    - name: Compare semver
+      id: version
+      run: |
+        echo "main: $main"
+        echo "current: $current"
+
+        echo "major_greater=false" >> $GITHUB_ENV
+        echo "minor_greater=false" >> $GITHUB_ENV
+        echo "patch_greater=false" >> $GITHUB_ENV
+
+        # Split the current version into an array of parts
+        IFS='.' read -r -a current_parts <<< "$current"
+
+        # Split the main version into an array of parts
+        IFS='.' read -r -a main_parts <<< "$main"
+
+        # Compare the parts of the version strings
+        if [[ "${current_parts[0]}" -gt "${main_parts[0]}" ]]; then
+          # Current major version is greater
+          echo "Current version is newer"
+          echo "{major_greater}={$major_greater}" >> $GITHUB_ENV
+          exit 0
+        elif [[ "${current_parts[0]}" -lt "${main_parts[0]}" ]]; then
+          # Current major version is lesser
+          echo "Master version is newer. Please update the version number in CMakeLists.txt according to Semantic Versioning 2.0.0 (https://semver.org/)."
+          exit 1
+        elif [[ "${current_parts[1]}" -gt "${main_parts[1]}" ]]; then
+          # Current minor version is greater
+          echo "{minor_greater}={$minor_greater}" >> $GITHUB_ENV
+          echo "Current version is newer"
+          exit 0
+        elif [[ "${current_parts[1]}" -lt "${main_parts[1]}" ]]; then
+          # Current minor version is lesser
+          echo "Master version is newer. Please update the version number in CMakeLists.txt according to Semantic Versioning 2.0.0 (https://semver.org/)."
+          exit 1
+        elif [[ "${current_parts[2]}" -gt "${main_parts[2]}" ]]; then
+          # Current patch version is greater
+          echo "{patch_greater}={$patch_greater}" >> $GITHUB_ENV
+          echo "Current version is newer"
+          exit 0
+        elif [[ "${current_parts[2]}" -lt "${main_parts[2]}" ]]; then
+          # Current patch version is lesser
+          echo "Master version is newer. Please update the version number in CMakeLists.txt according to Semantic Versioning 2.0.0 (https://semver.org/)."
+          exit 1
+        else
+          # Versions are equal
+          echo "Versions are equal. Please update the version number in CMakeLists.txt according to Semantic Versioning 2.0.0 (https://semver.org/)."
+          exit 1
+        fi
+    
+    - name: Major Update
+      uses: actions/github-script@v6
+      if: ${{ steps.version.outputs.major_greater }} == "true"
+      with:
+        script: |
+          github.rest.issues.addLabels({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: ["breaking-change"]
+          })
+    
+    - name: Minor Update
+      uses: actions/github-script@v6
+      if: ${{ steps.version.outputs.minor_greater }} == "true"
+      with:
+        script: |
+          github.rest.issues.addLabels({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: ["enhancement"]
+          })
+    
+    - name: Path Update
+      uses: actions/github-script@v6
+      if: ${{ steps.version.outputs.patch_greater }} == "true"
+      with:
+        script: |
+          github.rest.issues.addLabels({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: ["bug-fix"]
+          })

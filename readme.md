@@ -1,8 +1,8 @@
 # _`D`e`D`uplication`K`it_ 
 
-![build](https://github.com/FreddyFunk/ddk/actions/workflows/ci.yml/badge.svg?branch=master)
-![CodeQL](https://github.com/FreddyFunk/ddk/actions/workflows/codeql.yml/badge.svg?branch=master)
-[![codecov](https://codecov.io/gh/FreddyFunk/ddk/branch/master/graph/badge.svg?token=EE4DVMP2I7)](https://codecov.io/gh/FreddyFunk/ddk)
+![build](https://github.com/FreddyFunk/ddk/actions/workflows/ci.yml/badge.svg?branch=main)
+![CodeQL](https://github.com/FreddyFunk/ddk/actions/workflows/codeql.yml/badge.svg?branch=main)
+[![codecov](https://codecov.io/gh/FreddyFunk/ddk/branch/main/graph/badge.svg?token=EE4DVMP2I7)](https://codecov.io/gh/FreddyFunk/ddk)
 
 
 ## About
@@ -21,5 +21,5 @@ cd build
 cmake --build .
 
 # Run unit tests
-ctest -C
+ctest
 ```

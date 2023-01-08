@@ -1,4 +1,3 @@
-
 # This workflow needs to be present in the default branch before it can be triggered (https://github.com/orgs/community/discussions/25288)
 # This workflow will not appear in the PR overview. Please check "Actions" section of the GitHub repository.
 name: GitHub Release
@@ -6,7 +5,7 @@ name: GitHub Release
 on: 
   workflow_run:
     workflows: [Build & Test]
-    branches: [main, release-artefacts2] # THIS NEEDS TO BE REPLACED WHEN READY!
+    branches: [main]
     types: [completed]
 
 jobs:
@@ -24,11 +23,8 @@ jobs:
       id: download-artifact
       uses: dawidd6/action-download-artifact@v2
       with:
-        # Optional, workflow file name or ID
-        # If not specified, will be inferred from run_id (if run_id is specified), or will be the current workflow
         workflow: build.yml
         workflow_conclusion: success
-        #name: artifact_name
         path: artifacts
         skip_unpack: true
 

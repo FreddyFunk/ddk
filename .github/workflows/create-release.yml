@@ -1,0 +1,63 @@
+
+# This workflow needs to be present in the default branch before it can be triggered (https://github.com/orgs/community/discussions/25288)
+# This workflow will not appear in the PR overview. Please check "Actions" section of the GitHub repository.
+name: GitHub Release
+
+on: 
+  workflow_run:
+    workflows: [Build & Test]
+    branches: [main, release-artefacts2] # THIS NEEDS TO BE REPLACED WHEN READY!
+    types: [completed]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    env:
+      project_name: "DDK"
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Download artifact
+      id: download-artifact
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        # Optional, workflow file name or ID
+        # If not specified, will be inferred from run_id (if run_id is specified), or will be the current workflow
+        workflow: build.yml
+        workflow_conclusion: success
+        #name: artifact_name
+        path: artifacts
+        skip_unpack: true
+
+    - name: Get current semver
+      run: semver=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt)
+        && echo "semver=v$semver" >> $GITHUB_ENV
+
+    - name: Generate Changelog
+      run: git log -1 --pretty=%B > ${{ github.workspace }}-CHANGELOG.txt
+
+    - name: Setup local git config
+      run: git config --local user.email "bot@create-release.yml"
+        && git config --local user.name "GitHub Workflow"
+
+    - name: Set git tag
+      run: git tag -fa "$semver" -F ${{ github.workspace }}-CHANGELOG.txt
+    
+    - name: Push git tag
+      run: git push -f --tags
+    
+    - name: export semver as workflow input variable
+      run: echo ::set-output name=semver::$semver
+      id: version
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        # name: ${{ steps.version.outputs.semver }}
+        # body_path: ${{ github.workspace }}-CHANGELOG.txt
+        generate_release_notes: true
+        tag_name: ${{ steps.version.outputs.semver }}
+        files: ./artifacts/*

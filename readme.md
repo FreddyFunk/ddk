@@ -1,8 +1,8 @@
 # _`D`e`D`uplication`K`it_ 
 
-![build](https://github.com/FreddyFunk/ddk/actions/workflows/ci.yml/badge.svg?branch=main)
+![Build & Test](https://github.com/FreddyFunk/ddk/actions/workflows/build.yml/badge.svg?branch=main)
 ![CodeQL](https://github.com/FreddyFunk/ddk/actions/workflows/codeql.yml/badge.svg?branch=main)
-[![codecov](https://codecov.io/gh/FreddyFunk/ddk/branch/main/graph/badge.svg?token=EE4DVMP2I7)](https://codecov.io/gh/FreddyFunk/ddk)
+[![Code Coverage](https://codecov.io/gh/FreddyFunk/ddk/branch/main/graph/badge.svg?token=EE4DVMP2I7)](https://codecov.io/gh/FreddyFunk/ddk)
 
 
 ## About

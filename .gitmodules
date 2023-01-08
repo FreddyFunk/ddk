@@ -13,3 +13,6 @@
 [submodule "externals/cmake-scripts"]
 	path = externals/cmake-scripts
 	url = https://github.com/FreddyFunk/cmake-scripts.git
+[submodule "externals/cxxopts"]
+	path = externals/cxxopts
+	url = https://github.com/jarro2783/cxxopts.git

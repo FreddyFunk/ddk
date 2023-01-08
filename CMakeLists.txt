@@ -4,7 +4,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 project(
   DDK
-  VERSION 0.0.3
+  VERSION 0.0.4
   DESCRIPTION "DeDuplicationKit (ddk)"
   LANGUAGES CXX)
 
@@ -45,20 +45,12 @@ function(replicate_directory_structure target_name)
   endforeach()
 endfunction()
 
-# Clang Format
-include(externals/cmake-scripts/formatting.cmake)
-file(
-  GLOB_RECURSE
-  ALL_CODE_FILES
-  ${PROJECT_SOURCE_DIR}/src/*.[ch]pp
-  ${PROJECT_SOURCE_DIR}/src/*.[ch]
-  ${PROJECT_SOURCE_DIR}/tests/*.[h]pp
-  ${PROJECT_SOURCE_DIR}/tests/*.[h])
-clang_format(format ${ALL_CODE_FILES})
-
-# CMake Format
-file(GLOB_RECURSE CMAKE_FILES ${PROJECT_SOURCE_DIR}/CMakeLists.txt)
-cmake_format(cmake-format ${CMAKE_FILES})
+if(CMAKE_C_COMPILER_ID MATCHES "(Apple)?[Cc]lang" OR CMAKE_CXX_COMPILER_ID
+                                                     MATCHES "(Apple)?[Cc]lang")
+  set(CMAKE_OSX_ARCHITECTURES
+      "arm64;x86_64"
+      CACHE STRING "" FORCE)
+endif()
 
 # Code Coverage
 include(externals/cmake-scripts/code-coverage.cmake)

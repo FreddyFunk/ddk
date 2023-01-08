@@ -17,15 +17,18 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Debug current semver
+      run: awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt
+
     - name: Get current semver
-      run: export current=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt | sed 's/[^0-9.]*//g')
+      run: export current=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt)
     
     - uses: actions/checkout@v3
       with:
         ref: master
 
     - name: Get master semver
-      run: export master=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt | sed 's/[^0-9.]*//g')
+      run: export master=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt)
     
     - name: Compare semver
       run: |

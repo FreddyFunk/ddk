@@ -68,4 +68,8 @@ jobs:
           echo "Versions are equal. Please update the version number in CMakeLists.txt according to Semantic Versioning 2.0.0 (https://semver.org/)."
           exit 1
         fi
+    
+    - name: Cancelling parallel jobs
+      if: failure()
+      uses: andymckay/cancel-action@0.2
 

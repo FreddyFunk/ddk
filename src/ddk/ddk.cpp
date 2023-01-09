@@ -71,8 +71,9 @@ int main(int argc, char *argv[]) {
         const auto tilde = path.find('~');
         if (tilde != std::string::npos) {
             const std::string home = std::getenv("HOME");
-            sanitized_path = path.replace(tilde, 1, home);
+            path.replace(tilde, 1, home);
         }
+        sanitized_path = path;
     } else {
         fmt::print("ERROR: Multiple paths selected with option \"-p\"\n" +
                    std::to_string(result.count("p")));

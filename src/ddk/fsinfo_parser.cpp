@@ -40,7 +40,7 @@ std::string getItemInfo(const DDK::FileSystemItem *item, bool fullPath) {
     return itemInfo;
 }
 
-std::string getDuplicateInfo(const std::vector<DDK::FileSystemItem *> &duplicates) {
+std::string getDuplicateGroups(const std::vector<DDK::FileSystemItem *> &duplicates) {
     std::string duplicateInfo{};
 
     duplicateInfo += "Duplicate Group with " + std::to_string(duplicates.size()) +
@@ -54,8 +54,30 @@ std::string getDuplicateInfo(const std::vector<DDK::FileSystemItem *> &duplicate
 
     return duplicateInfo;
 }
+std::string getDuplicateList(const std::vector<DDK::FileSystemItem *> &duplicates) {
+    std::string duplicateInfo{};
+
+    // skip first entry of duplicate list since only the remaining entries are duplicates of the
+    // first entry
+    for (std::size_t i = 1; i < duplicates.size(); i++) {
+        duplicateInfo += duplicates.at(i)->getPathAsString() + "\n";
+    }
+
+    return duplicateInfo;
+}
 
 std::string FSinfoDuplicateList(const DDK::FileSystemInfo *const fsinfo) {
+    std::string result{};
+    auto duplicates = fsinfo->getDuplicates();
+
+    for (const auto duplicate : duplicates) {
+        result += getDuplicateList(duplicate) + "\n";
+    }
+
+    return result;
+}
+
+std::string FSinfoDuplicateListDetailed(const DDK::FileSystemInfo *const fsinfo) {
     std::string result{};
     auto duplicates = fsinfo->getDuplicates();
 
@@ -66,13 +88,13 @@ std::string FSinfoDuplicateList(const DDK::FileSystemInfo *const fsinfo) {
 
         std::size_t redundant_data_size = 0;
         for (const auto duplicate : duplicates) {
-            redundant_data_size += getDuplicateInfo(duplicate).size() * (duplicate.size() - 1);
+            redundant_data_size += getDuplicateGroups(duplicate).size() * (duplicate.size() - 1);
         }
         result += "Redundant data: " + humanReadableSize(redundant_data_size) + "\n\n";
     }
 
     for (const auto duplicate : duplicates) {
-        result += getDuplicateInfo(duplicate) + "\n";
+        result += getDuplicateGroups(duplicate) + "\n";
     }
 
     return result;

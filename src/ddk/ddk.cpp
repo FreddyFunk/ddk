@@ -10,11 +10,14 @@ static void printInvalidOptions() {
     fmt::print("ERROR: Illegal options. Use \"ddk -h\" for help.\n");
 }
 
-static void printResultsDedup(const DDK::FileSystemInfo *const fsinfo) {
-    std::string result = DDK::FSInfoParser::FSinfoDuplicateList(fsinfo);
+static void printResultsDedup(const DDK::FileSystemInfo *const fsinfo, const bool detailed) {
+    if (detailed) {
+        fmt::print("Results for: {}\n", fsinfo->getRootPath().string());
+        fmt::print("{}\n", DDK::FSInfoParser::summary(fsinfo));
+    }
 
-    fmt::print("Results for: {}\n", fsinfo->getRootPath().string());
-    fmt::print("{}\n", DDK::FSInfoParser::summary(fsinfo));
+    std::string result = detailed ? DDK::FSInfoParser::FSinfoDuplicateListDetailed(fsinfo)
+                                  : DDK::FSInfoParser::FSinfoDuplicateList(fsinfo);
     fmt::print("{}\n", result);
 }
 
@@ -62,8 +65,7 @@ int main(int argc, char *argv[]) {
 
     if (result.count("p") == 0) {
         sanitized_path = std::filesystem::current_path().string();
-    }
-    if (result.count("p") == 1) {
+    } else if (result.count("p") == 1) {
         std::string path = result["p"].as<std::string>();
 
         const auto tilde = path.find('~');
@@ -72,8 +74,14 @@ int main(int argc, char *argv[]) {
             sanitized_path = path.replace(tilde, 1, home);
         }
     } else {
-        fmt::print("ERROR: Multiple paths selected with option \"-p\"\n");
+        fmt::print("ERROR: Multiple paths selected with option \"-p\"\n" +
+                   std::to_string(result.count("p")));
         printInvalidOptions();
+        return 1;
+    }
+
+    if (sanitized_path.empty()) {
+        sanitized_path = std::filesystem::current_path().string();
     }
 
     if (!std::filesystem::exists(sanitized_path)) {
@@ -84,7 +92,7 @@ int main(int argc, char *argv[]) {
     // Scan file system structure
     const DDK::FileSystemInfo fsinfo(std::filesystem::path(sanitized_path), analyze_symLinks);
 
-    printResultsDedup(&fsinfo);
+    printResultsDedup(&fsinfo, detailed);
 
     return 0;
 }

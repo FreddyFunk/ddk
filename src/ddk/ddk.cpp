@@ -16,8 +16,8 @@ static void printResultsDedup(const DDK::FileSystemInfo *const fsinfo, const boo
         fmt::print("{}\n", DDK::FSInfoParser::summary(fsinfo));
     }
 
-    std::string result = detailed ? DDK::FSInfoParser::FSinfoDuplicateListDetailed(fsinfo)
-                                  : DDK::FSInfoParser::FSinfoDuplicateList(fsinfo);
+    const std::string result = detailed ? DDK::FSInfoParser::FSinfoDuplicateListDetailed(fsinfo)
+                                        : DDK::FSInfoParser::FSinfoDuplicateList(fsinfo);
     fmt::print("{}\n", result);
 }
 

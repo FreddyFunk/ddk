@@ -88,7 +88,7 @@ std::string FSinfoDuplicateListDetailed(const DDK::FileSystemInfo *const fsinfo)
 
         std::size_t redundant_data_size = 0;
         for (const auto duplicate : duplicates) {
-            redundant_data_size += getDuplicateGroups(duplicate).size() * (duplicate.size() - 1);
+            redundant_data_size += (duplicate.size() - 1) * duplicate.front()->getSizeInBytes();
         }
         result += "Redundant data: " + humanReadableSize(redundant_data_size) + "\n\n";
     }

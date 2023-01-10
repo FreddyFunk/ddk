@@ -21,6 +21,34 @@ static void printResultsDedup(const DDK::FileSystemInfo *const fsinfo, const boo
     fmt::print("{}\n", result);
 }
 
+static std::filesystem::path getPathFromOption(const cxxopts::ParseResult &result,
+                                               const std::string option) {
+    std::filesystem::path sanitized_path;
+
+    if (result.count(option) == 0) {
+        return std::filesystem::current_path().string();
+    }
+    std::string path = result[option].as<std::string>();
+
+    const auto tilde = path.find('~');
+    if (tilde != std::string::npos) {
+        const std::string home = std::getenv("HOME");
+        path.replace(tilde, 1, home);
+    }
+    sanitized_path = path;
+
+    if (sanitized_path.empty()) {
+        sanitized_path = std::filesystem::current_path().string();
+    }
+
+    if (!std::filesystem::exists(sanitized_path)) {
+        fmt::print("ERROR: Custom path {} does not exists.\n", sanitized_path.string());
+        exit(1);
+    }
+
+    return sanitized_path;
+}
+
 int main(int argc, char *argv[]) {
     cxxopts::Options options(
         "ddk", "DeDuplicationKit (ddk) is a simple command line tool for finding duplicate files.");
@@ -40,11 +68,20 @@ int main(int argc, char *argv[]) {
 
     cxxopts::ParseResult result;
 
+    // Check for invalid options
     try {
         result = options.parse(argc, argv);
     } catch (const std::exception &e) {
         printInvalidOptions();
         return 1;
+    }
+
+    // do not allow duplicate options
+    for (const auto &option : {"h", "v", "p", "c", "d", "l", "r", "i"}) {
+        if (result.count(option) > 1) {
+            printInvalidOptions();
+            return 1;
+        }
     }
 
     if (result["h"].as<bool>()) {
@@ -61,37 +98,10 @@ int main(int argc, char *argv[]) {
     const bool detailed = result["d"].as<bool>();
     const bool remove = result["r"].as<bool>();
     const bool remove_interactive = result["i"].as<bool>();
-    std::filesystem::path sanitized_path;
-
-    if (result.count("p") == 0) {
-        sanitized_path = std::filesystem::current_path().string();
-    } else if (result.count("p") == 1) {
-        std::string path = result["p"].as<std::string>();
-
-        const auto tilde = path.find('~');
-        if (tilde != std::string::npos) {
-            const std::string home = std::getenv("HOME");
-            path.replace(tilde, 1, home);
-        }
-        sanitized_path = path;
-    } else {
-        fmt::print("ERROR: Multiple paths selected with option \"-p\"\n" +
-                   std::to_string(result.count("p")));
-        printInvalidOptions();
-        return 1;
-    }
-
-    if (sanitized_path.empty()) {
-        sanitized_path = std::filesystem::current_path().string();
-    }
-
-    if (!std::filesystem::exists(sanitized_path)) {
-        fmt::print("ERROR: Custom path {} does not exists.\n", sanitized_path.string());
-        return 1;
-    }
+    std::filesystem::path path = getPathFromOption(result, "p");
 
     // Scan file system structure
-    const DDK::FileSystemInfo fsinfo(std::filesystem::path(sanitized_path), analyze_symLinks);
+    const DDK::FileSystemInfo fsinfo(std::filesystem::path(path), analyze_symLinks);
 
     printResultsDedup(&fsinfo, detailed);
 

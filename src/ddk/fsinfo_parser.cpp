@@ -1,4 +1,5 @@
 #include "fsinfo_parser.hpp"
+#include "filter/common.hpp"
 #include <cmath>
 #include <sstream>
 
@@ -54,6 +55,7 @@ std::string getDuplicateGroups(const std::vector<DDK::FileSystemItem *> &duplica
 
     return duplicateInfo;
 }
+
 std::string getDuplicateList(const std::vector<DDK::FileSystemItem *> &duplicates) {
     std::string duplicateInfo{};
 
@@ -66,20 +68,44 @@ std::string getDuplicateList(const std::vector<DDK::FileSystemItem *> &duplicate
     return duplicateInfo;
 }
 
+std::string getDuplicateListFromCompare(const std::vector<DDK::FileSystemItem *> &duplicates,
+                                        const std::filesystem::path &path_compare_root) {
+    std::string duplicateInfo{};
+
+    for (const auto &duplicate : duplicates) {
+        if (!DDK::FILTER::COMMON::is_sub_directory(duplicate->getPath(), path_compare_root)) {
+            duplicateInfo += duplicate->getPathAsString() + "\n";
+        }
+    }
+    return duplicateInfo;
+}
+
 std::string FSinfoDuplicateList(const DDK::FileSystemInfo *const fsinfo) {
     std::string result{};
     auto duplicates = fsinfo->getDuplicates();
 
     for (const auto duplicate : duplicates) {
-        result += getDuplicateList(duplicate) + "\n";
+        result += getDuplicateList(duplicate);
     }
 
     return result;
 }
 
-std::string FSinfoDuplicateListDetailed(const DDK::FileSystemInfo *const fsinfo) {
+std::string FSinfoDuplicateList(const DDK::FileSystemInfo *const fsinfo,
+                                const DDK::FileSystemInfo *const compare) {
     std::string result{};
-    auto duplicates = fsinfo->getDuplicates();
+    auto duplicates = fsinfo->getDuplicatesFromCompare(compare);
+
+    for (const auto duplicate : duplicates) {
+        result += getDuplicateListFromCompare(duplicate, compare->getRootPath());
+    }
+
+    return result;
+}
+
+std::string parseDuplicatesDetailed(
+    const std::vector<std::vector<DDK::FileSystemItem *>> &duplicates) {
+    std::string result{};
 
     if (duplicates.empty()) {
         return "No duplicates found!\n";
@@ -100,8 +126,17 @@ std::string FSinfoDuplicateListDetailed(const DDK::FileSystemInfo *const fsinfo)
     return result;
 }
 
+std::string FSinfoDuplicateListDetailed(const DDK::FileSystemInfo *const fsinfo) {
+    return parseDuplicatesDetailed(fsinfo->getDuplicates());
+}
+
+std::string FSinfoDuplicateListDetailed(const DDK::FileSystemInfo *const fsinfo,
+                                        const DDK::FileSystemInfo *const compare) {
+    return parseDuplicatesDetailed(fsinfo->getDuplicatesFromCompare(compare));
+}
+
 std::string summary(const DDK::FileSystemInfo *const fsinfo) {
-    std::string result{};
+    std::string result = "Results for: " + fsinfo->getRootPath().string() + "\n";
 
     result += "Analyzed files: " + std::to_string(fsinfo->getFilesCount()) + "\n";
     result += "Analyzed subdirectories: " + std::to_string(fsinfo->getDirectoriesCount()) + "\n";
@@ -111,6 +146,29 @@ std::string summary(const DDK::FileSystemInfo *const fsinfo) {
     }
 
     result += "Analyzed data: " + humanReadableSize(fsinfo->getTotalSize()) + "\n";
+
+    return result;
+}
+
+std::string summary(const DDK::FileSystemInfo *const fsinfo,
+                    const DDK::FileSystemInfo *const compare) {
+    std::string result = "Searching for duplicates of:\n" + compare->getRootPath().string() + "\n";
+    result += "in path:\n" + fsinfo->getRootPath().string() + "\n\n";
+
+    result +=
+        "Analyzed files: " + std::to_string(fsinfo->getFilesCount() + compare->getFilesCount()) +
+        "\n";
+    result += "Analyzed subdirectories: " +
+              std::to_string(fsinfo->getDirectoriesCount() + compare->getDirectoriesCount()) + "\n";
+
+    if (fsinfo->symlinks()) {
+        result += "Analyzed symlinks: " +
+                  std::to_string(fsinfo->getSymlinksCount() + compare->getSymlinksCount()) + "\n";
+    }
+
+    result +=
+        "Analyzed data: " + humanReadableSize(fsinfo->getTotalSize() + compare->getTotalSize()) +
+        "\n";
 
     return result;
 }

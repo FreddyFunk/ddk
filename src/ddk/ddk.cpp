@@ -1,3 +1,4 @@
+#include "filter/common.hpp"
 #include "fsinfo_parser.hpp"
 #include "version.h"
 #include <algorithm>
@@ -12,12 +13,24 @@ static void printInvalidOptions() {
 
 static void printResultsDedup(const DDK::FileSystemInfo *const fsinfo, const bool detailed) {
     if (detailed) {
-        fmt::print("Results for: {}\n", fsinfo->getRootPath().string());
         fmt::print("{}\n", DDK::FSInfoParser::summary(fsinfo));
     }
 
     const std::string result = detailed ? DDK::FSInfoParser::FSinfoDuplicateListDetailed(fsinfo)
                                         : DDK::FSInfoParser::FSinfoDuplicateList(fsinfo);
+    fmt::print("{}\n", result);
+}
+
+static void printResultsDedupCompare(const DDK::FileSystemInfo *const fsinfo,
+                                     const DDK::FileSystemInfo *const compare,
+                                     bool detailed) {
+    if (detailed) {
+        fmt::print("{}\n", DDK::FSInfoParser::summary(fsinfo, compare));
+    }
+
+    const std::string result = detailed
+                                   ? DDK::FSInfoParser::FSinfoDuplicateListDetailed(fsinfo, compare)
+                                   : DDK::FSInfoParser::FSinfoDuplicateList(fsinfo, compare);
     fmt::print("{}\n", result);
 }
 
@@ -35,7 +48,8 @@ static std::filesystem::path getPathFromOption(const cxxopts::ParseResult &resul
         const std::string home = std::getenv("HOME");
         path.replace(tilde, 1, home);
     }
-    sanitized_path = path;
+
+    sanitized_path = std::filesystem::absolute(std::filesystem::path(path)).lexically_normal();
 
     if (sanitized_path.empty()) {
         sanitized_path = std::filesystem::current_path().string();
@@ -98,12 +112,28 @@ int main(int argc, char *argv[]) {
     const bool detailed = result["d"].as<bool>();
     const bool remove = result["r"].as<bool>();
     const bool remove_interactive = result["i"].as<bool>();
-    std::filesystem::path path = getPathFromOption(result, "p");
+    const std::filesystem::path path = getPathFromOption(result, "p");
+    const DDK::FileSystemInfo fsinfo(path, analyze_symLinks);
 
-    // Scan file system structure
-    const DDK::FileSystemInfo fsinfo(std::filesystem::path(path), analyze_symLinks);
+    if (result.count("c") == 1) {
+        const std::filesystem::path path_compare = getPathFromOption(result, "c");
+        if (path == path_compare) {
+            fmt::print(
+                "If you want to find duplicates in one directory use \"-p\" only. Aborting...\n");
+            return 1;
+        }
 
-    printResultsDedup(&fsinfo, detailed);
+        if (DDK::FILTER::COMMON::is_sub_directory(path, path_compare) ||
+            DDK::FILTER::COMMON::is_sub_directory(path_compare, path)) {
+            fmt::print("WARN: Comparing to a subdirectory is not recommended due to "
+                       "exponentionally increasing resource requirements.\n");
+        }
 
-    return 0;
+        const DDK::FileSystemInfo compare(path_compare, analyze_symLinks);
+        printResultsDedupCompare(&fsinfo, &compare, detailed);
+        return 0;
+    } else {
+        printResultsDedup(&fsinfo, detailed);
+        return 0;
+    }
 }

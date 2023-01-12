@@ -58,6 +58,18 @@ std::vector<std::vector<FileSystemItem *>> FileSystemInfo::getDuplicates() const
     return FILTER::DEDUPLICATION::getDuplicateClustersSorted(items);
 }
 
+std::vector<std::vector<FileSystemItem *>> FileSystemInfo::getDuplicatesFromCompare(
+    const FileSystemInfo *const compare) const {
+    auto items = getAllFileSystemItems();
+    auto items_compare = compare->getAllFileSystemItems();
+    items.insert(items.end(), items_compare.begin(), items_compare.end());
+
+    // TODO: Remove duplicate items in case a subdirectory is compared
+    // FILTER::COMMON::removeFSItemsWithIdenticalPath(items);
+    FILTER::DEDUPLICATION::tagDuplicateBinaries(items);
+    return FILTER::DEDUPLICATION::getDuplicateClustersSorted(items);
+}
+
 std::size_t FileSystemInfo::getDirectoriesCount() const {
     return m_root->getChildSubDirectoriesCount();
 }

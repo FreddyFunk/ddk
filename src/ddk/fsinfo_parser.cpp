@@ -73,7 +73,7 @@ std::string getDuplicateListFromCompare(const std::vector<DDK::FileSystemItem *>
     std::string duplicateInfo{};
 
     for (const auto &duplicate : duplicates) {
-        if (!DDK::FILTER::COMMON::is_sub_directory(duplicate->getPath(), path_compare_root)) {
+        if (!DDK::FILTER::COMMON::is_in_sub_directory(duplicate->getPath(), path_compare_root)) {
             duplicateInfo += duplicate->getPathAsString() + "\n";
         }
     }

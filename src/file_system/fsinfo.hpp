@@ -24,7 +24,7 @@ class FileSystemInfo {
     bool symlinks() const;
 
   private:
-    const FileSystemItem *const m_root;
+    FileSystemItem *m_root;
     const bool m_analyzeSymLinks;
 
     std::vector<FileSystemItem *> getFileSystemItemsRecursive(

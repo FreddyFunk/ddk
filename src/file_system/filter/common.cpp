@@ -2,8 +2,8 @@
 #include <algorithm>
 
 namespace DDK::FILTER::COMMON {
-bool is_sub_directory(std::filesystem::path path, const std::filesystem::path &root) {
-    while (path != std::filesystem::path()) {
+bool is_in_sub_directory(std::filesystem::path path, const std::filesystem::path &root) {
+    while (path != std::filesystem::path() && path != path.root_path()) {
         if (path == root) {
             return true;
         }

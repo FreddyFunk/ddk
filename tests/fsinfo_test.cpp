@@ -57,7 +57,8 @@ TEST_P(FSInfoTestFileSystemStructures, CorrectInitialized) {
     EXPECT_EQ(fsinfo->getTotalSize(), total_file_count * file_size);
     EXPECT_EQ(fsinfo->getFilesCount(), total_file_count);
     EXPECT_EQ(fsinfo->getSymlinksCount(), 0);
-    EXPECT_EQ(fsinfo->getDirectoriesCount(), total_directory_count);
+    EXPECT_EQ(fsinfo->getDirectoriesCount(),
+              total_directory_count + 1); // +1: root fsitem is a directory
     EXPECT_EQ(fsinfo->getCurrentDirItems(false, false).size(),
               directories_per_depth + files_per_directory);
     EXPECT_EQ(fsinfo->getCurrentDirItems(true, false).size(),
@@ -65,9 +66,9 @@ TEST_P(FSInfoTestFileSystemStructures, CorrectInitialized) {
     EXPECT_EQ(fsinfo->getCurrentDirItems(false, true).size(), files_per_directory);
     EXPECT_EQ(fsinfo->getCurrentDirItems(true, true).size(), files_per_directory);
     EXPECT_EQ(fsinfo->getAllFileSystemItems(false, false).size(),
-              total_directory_count + total_file_count);
+              total_directory_count + total_file_count + 1); // +1: root fsitem is a directory
     EXPECT_EQ(fsinfo->getAllFileSystemItems(true, false).size(),
-              total_directory_count + total_file_count);
+              total_directory_count + total_file_count + 1); // +1: root fsitem is a directory
     EXPECT_EQ(fsinfo->getAllFileSystemItems(false, true).size(), total_file_count);
     EXPECT_EQ(fsinfo->getAllFileSystemItems(true, true).size(), total_file_count);
 
@@ -79,7 +80,7 @@ TEST_P(FSInfoTestFileSystemStructures, CorrectInitialized) {
     }
 }
 
-TEST_P(FSInfoTestFileSystemStructures, SingleDuplicateFile) {
+TEST_P(FSInfoTestFileSystemStructures, CompareToSingleDuplicateFileInDirectory) {
     Data::setupDirectory(base_path_compare, 0, 1, 1);
     FileSystemInfo fsinfo_compare(base_path_compare, false);
     const auto duplicates = fsinfo->getDuplicatesFromCompare(&fsinfo_compare);
@@ -88,20 +89,97 @@ TEST_P(FSInfoTestFileSystemStructures, SingleDuplicateFile) {
     EXPECT_EQ(duplicates.size(), duplicate_count);
 
     if (files_per_directory > 0) {
-        for (const auto &dup : fsinfo->getDuplicates()) {
-            EXPECT_EQ(dup.size(), (total_directory_count + 1));
+        for (const auto &dup : duplicates) {
+            EXPECT_EQ(dup.size(), (total_directory_count + 1) + 1);
         }
     }
 }
 
-// // SingleNonDuplicateFile
+TEST_P(FSInfoTestFileSystemStructures, CompareToSingleDuplicateFile) {
+    Data::setupDirectory(base_path_compare, 0, 1, 1);
+    FileSystemInfo fsinfo_compare(base_path_compare / "file_0.txt", false);
+    const auto duplicates = fsinfo->getDuplicatesFromCompare(&fsinfo_compare);
 
-// // Two Indentical files in different dir depths within large folder/file tree
+    const std::uintmax_t duplicate_count = files_per_directory > 0 ? 1 : 0;
+    EXPECT_EQ(duplicates.size(), duplicate_count);
 
-// // Identical directories
+    if (files_per_directory > 0) {
+        for (const auto &dup : duplicates) {
+            EXPECT_EQ(dup.size(), (total_directory_count + 1) + 1);
+        }
+    }
+}
 
-// // fscompare base path with base path should be identical with fsinfo regarding duplicates,
-// everything else 2x
+TEST_P(FSInfoTestFileSystemStructures, CompareToSingleNonDuplicateFile) {
+    std::ofstream outfile(base_path_compare / "file_0.txt");
+    outfile << "Different Content..." << std::endl;
+    outfile.close();
+
+    FileSystemInfo fsinfo_compare(base_path_compare / "file_0.txt", false);
+
+    const auto duplicates = fsinfo->getDuplicatesFromCompare(&fsinfo_compare);
+
+    EXPECT_EQ(duplicates.size(), 0);
+}
+
+TEST_P(FSInfoTestFileSystemStructures, CompareToIdenticalDirectories) {
+    Data::setupDirectory(base_path_compare, directories_per_depth, files_per_directory,
+                         recursion_depth);
+
+    FileSystemInfo fsinfo_compare(base_path_compare, false);
+
+    const auto duplicates = fsinfo->getDuplicatesFromCompare(&fsinfo_compare);
+
+    EXPECT_EQ(duplicates.size(), files_per_directory);
+    EXPECT_EQ(duplicates.size(),
+              total_directory_count > 1 ? fsinfo->getDuplicates().size() : files_per_directory);
+    EXPECT_EQ(fsinfo->getDuplicates().size(), fsinfo_compare.getDuplicates().size());
+
+    if (files_per_directory > 0) {
+        for (const auto &dup : duplicates) {
+            EXPECT_EQ(dup.size(), (total_directory_count + 1) * 2);
+        }
+    }
+}
+
+TEST_P(FSInfoTestFileSystemStructures, CompareToItself) {
+    FileSystemInfo fsinfo_compare(base_path, false);
+
+    const auto duplicates = fsinfo->getDuplicatesFromCompare(&fsinfo_compare);
+
+    EXPECT_EQ(duplicates.size(), directories_per_depth > 0 ? files_per_directory : 0);
+    EXPECT_EQ(fsinfo->getDuplicates().size(), fsinfo_compare.getDuplicates().size());
+
+    if (files_per_directory > 0) {
+        for (const auto &dup : duplicates) {
+            EXPECT_EQ(dup.size(), total_directory_count + 1);
+        }
+    }
+}
+
+TEST_P(FSInfoTestFileSystemStructures, CompareToOwnSubdirectory) {
+    if (directories_per_depth == 0) {
+        return; // return directly to avoid skipping tests spam in test report.
+        GTEST_SKIP() << "Skipping CorrectInitializedChildFileInSubdirectory test since "
+                        "directories_per_depth == 0";
+    }
+
+    FileSystemInfo fsinfo_compare(base_path / "dir_0", false);
+
+    const auto duplicates = fsinfo->getDuplicatesFromCompare(&fsinfo_compare);
+
+    EXPECT_EQ(duplicates.size(), files_per_directory);
+    EXPECT_EQ(duplicates.size(),
+              total_directory_count > 1 ? fsinfo->getDuplicates().size() : files_per_directory);
+    EXPECT_EQ(fsinfo_compare.getDuplicates().size(),
+              recursion_depth > 1 ? fsinfo->getDuplicates().size() : 0);
+
+    if (files_per_directory > 0) {
+        for (const auto &dup : duplicates) {
+            EXPECT_EQ(dup.size(), (total_directory_count + 1));
+        }
+    }
+}
 
 INSTANTIATE_TEST_SUITE_P(FSInfoTestFileSystemStructuresWithParameter,
                          FSInfoTestFileSystemStructures,
@@ -179,29 +257,30 @@ class FSInfoTestFileCompareDirectoryToDirectory
         (total_directory_count_compare * files_per_directory_compare) + files_per_directory_compare;
 };
 
-// TEST_P(FSInfoTestFileCompareDirectoryToDirectory, DirectoryToDirectory) {
-//     const auto duplicates = fsinfo->getDuplicatesFromCompare(fsinfo_compare);
-//
-//     const std::uintmax_t duplicate_count = directories_per_depth > 0 ? files_per_directory : 0;
-//     EXPECT_EQ(fsinfo->getDuplicates().size(), duplicate_count);
-//
-//     for (const auto &dup : fsinfo->getDuplicates()) {
-//         EXPECT_EQ(dup.size(), (total_directory_count + 1) * 2);
-//     }
-// }
-//
-// INSTANTIATE_TEST_SUITE_P(FSInfoTestFileCompareDirectoryToDirectoryWithParameter,
-//                          FSInfoTestFileCompareDirectoryToDirectory,
-//                          testing::Combine(testing::Values(1, 2, 3), // base directory:
-//                          recursion_depth
-//                                           testing::Values(0, 1, 3), // base directory:
-//                                           directories_per_depth testing::Values(0, 1, 5), // base
-//                                           directory: files_per_directory testing::Values(1, 2,
-//                                           3), // compare directory: recursion_depth
-//                                           testing::Values(0, 1, 3), // compare directory:
-//                                           directories_per_depth testing::Values(0, 1, 5)  //
-//                                           compare directory: files_per_directory
-//                                           ));
+TEST_P(FSInfoTestFileCompareDirectoryToDirectory, DirectoryToDirectory) {
+    const auto duplicates = fsinfo->getDuplicatesFromCompare(fsinfo_compare);
+
+    const std::uintmax_t duplicate_count =
+        std::min(files_per_directory, files_per_directory_compare);
+    EXPECT_EQ(duplicates.size(), duplicate_count);
+
+    for (const auto &dup : duplicates) {
+        EXPECT_EQ(dup.size(), duplicate_count > 0 ? (total_directory_count + 1) +
+                                                        (total_directory_count_compare + 1)
+                                                  : 0);
+    }
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    FSInfoTestFileCompareDirectoryToDirectoryWithParameter,
+    FSInfoTestFileCompareDirectoryToDirectory,
+    testing::Combine(testing::Values(1, 2, 3), // base directory: recursion_depth
+                     testing::Values(0, 1, 3), // base directory: directories_per_depth
+                     testing::Values(0, 1, 5), // base directory: files_per_directory
+                     testing::Values(1, 2, 3), // compare directory: recursion_depth
+                     testing::Values(0, 1, 3), // compare directory: directories_per_depth
+                     testing::Values(0, 1, 5)  // compare directory: files_per_directory
+                     ));
 
 } // namespace Test
 } // namespace DDK

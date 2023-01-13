@@ -3,6 +3,7 @@
 #include "version.h"
 #include <algorithm>
 #include <cxxopts.hpp>
+#include <fmt/color.h>
 #include <fmt/core.h>
 
 static void printVersion() { fmt::print("{}\n", DDK_VERSION); }
@@ -18,7 +19,7 @@ static void printResultsDedup(const DDK::FileSystemInfo *const fsinfo, const boo
 
     const std::string result = detailed ? DDK::FSInfoParser::FSinfoDuplicateListDetailed(fsinfo)
                                         : DDK::FSInfoParser::FSinfoDuplicateList(fsinfo);
-    fmt::print("{}\n", result);
+    fmt::print("{}", result);
 }
 
 static void printResultsDedupCompare(const DDK::FileSystemInfo *const fsinfo,
@@ -31,7 +32,7 @@ static void printResultsDedupCompare(const DDK::FileSystemInfo *const fsinfo,
     const std::string result = detailed
                                    ? DDK::FSInfoParser::FSinfoDuplicateListDetailed(fsinfo, compare)
                                    : DDK::FSInfoParser::FSinfoDuplicateList(fsinfo, compare);
-    fmt::print("{}\n", result);
+    fmt::print("{}", result);
 }
 
 static std::filesystem::path getPathFromOption(const cxxopts::ParseResult &result,
@@ -60,7 +61,7 @@ static std::filesystem::path getPathFromOption(const cxxopts::ParseResult &resul
         exit(1);
     }
 
-    return sanitized_path;
+    return std::filesystem::canonical(sanitized_path);
 }
 
 int main(int argc, char *argv[]) {
@@ -71,12 +72,13 @@ int main(int argc, char *argv[]) {
     options.add_options()
         ("h,help", "Display this manual and exit", cxxopts::value<bool>()->default_value("false"))
         ("v,version", "Display semantic version of ddk", cxxopts::value<bool>()->default_value("false"))
-        ("p,path", "Search for duplicates in specific path \"arg\"", cxxopts::value<std::string>())
-        ("c,compare", "Compare content of path \"-p arg\" with content of path \"-c arg\" and lists all duplicates found in path \"-p arg\"", cxxopts::value<std::string>())
+        ("p,path", "Search for duplicates in specific path \"arg\". When no \"-p arg\" is specified, ddk will default to the current path.", cxxopts::value<std::string>())
+        ("c,compare", "Compare content of path \"-p arg\" with content of path \"-c arg\" and lists all duplicates of files within path \"-c arg\" that are found within path \"-p arg\" and are not within path \"-c arg\"", cxxopts::value<std::string>())
         ("d,detailed", "Show detailed information about deduplication scan", cxxopts::value<bool>()->default_value("false"))
         ("l,symlinks", "Follow symbolic links during deduplication scan", cxxopts::value<bool>()->default_value("false"))
         ("r,remove", "Remove duplicates (PERMANENTLY DELETES FILES! USE WITH CAUTION!)", cxxopts::value<bool>()->default_value("false"))
         ("i,remove-interactive", "Go through each duplicate one by one and let the user select which files should be deleted", cxxopts::value<bool>()->default_value("false"))
+        ("f,force", "Skip user prompt for asking if you really want to delete all duplicates and start deleting files immediately. Can only be used together with option \"-r\".", cxxopts::value<bool>()->default_value("false"))
         ;
     // clang-format on
 
@@ -118,22 +120,41 @@ int main(int argc, char *argv[]) {
     if (result.count("c") == 1) {
         const std::filesystem::path path_compare = getPathFromOption(result, "c");
         if (path == path_compare) {
-            fmt::print(
-                "If you want to find duplicates in one directory use \"-p\" only. Aborting...\n");
+            fmt::print(fmt::emphasis::bold | fmt::emphasis::italic | fg(fmt::color::red),
+                       "ERROR: If you want to find duplicates in one directory use \"-p\" only.\n");
             return 1;
         }
 
-        if (DDK::FILTER::COMMON::is_sub_directory(path, path_compare) ||
-            DDK::FILTER::COMMON::is_sub_directory(path_compare, path)) {
-            fmt::print("WARN: Comparing to a subdirectory is not recommended due to "
-                       "exponentionally increasing resource requirements.\n");
+        if (DDK::FILTER::COMMON::is_in_sub_directory(path, path_compare)) {
+            fmt::print(fmt::emphasis::bold | fmt::emphasis::italic | fg(fmt::color::red),
+                       "ERROR: Cannot compare \"{}\" to a parent directory \"{}\". This would "
+                       "result in 0 duplicates found.\n",
+                       path.string(), path_compare.string());
+            return 1;
+        }
+
+        if (DDK::FILTER::COMMON::is_in_sub_directory(path_compare, path)) {
+            fmt::print(
+                fmt::emphasis::bold | fmt::emphasis::italic | fg(fmt::color::yellow),
+                "WARN: Comparing to a subdirectory will only list duplicates within the path "
+                "\"-p\" that are not within the path \"-c\". So here only duplicates found "
+                "within \"{}\" that are not located within \"{}\" are listed.",
+                path.string(), path_compare.string());
+            fmt::print("\n");
+            if (detailed) {
+                fmt::print(
+                    fmt::emphasis::bold | fmt::emphasis::italic | fg(fmt::color::yellow),
+                    "WARN: Comparing to a subdirectory is not recommended and might result in an"
+                    " incorrect scan summary when using \"-d\".");
+                fmt::print("\n");
+            }
         }
 
         const DDK::FileSystemInfo compare(path_compare, analyze_symLinks);
         printResultsDedupCompare(&fsinfo, &compare, detailed);
-        return 0;
     } else {
         printResultsDedup(&fsinfo, detailed);
-        return 0;
     }
+
+    return 0;
 }

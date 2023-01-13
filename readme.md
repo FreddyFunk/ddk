@@ -15,19 +15,23 @@
 ```
 ddk [OPTION...]
 
--h, --help                Display this manual and exit
--v, --version             Display semantic version of ddk
--p, --path arg            Search for duplicates in specific path "arg"
--c, --compare arg         Compare content of path "-p arg" with content 
-                          of path "-c arg" and lists all duplicates found 
-                          in path "-p arg"
--d, --detailed            Show detailed information about deduplication 
-                          scan
--l, --symlinks            Follow symbolic links during deduplication scan
--r, --remove              Remove duplicates (PERMANENTLY DELETES FILES! 
-                          USE WITH CAUTION!)
--i, --remove-interactive  Go through each duplicate one by one and let 
-                          the user select which files should be deleted
+-h, --help         Display this manual and exit
+-v, --version      Display semantic version of ddk
+-p, --path arg     Search for duplicates in specific path "arg". When no 
+                    "-p arg" is specified, ddk will default to the current 
+                    path.
+-c, --compare arg  Compare content of path "-p arg" with content of path 
+                    "-c arg" and lists all duplicates of files within path 
+                    "-c arg" that are found within path "-p arg" and are 
+                    not within path "-c arg"
+-d, --detailed     Show detailed information about deduplication scan
+-l, --symlinks     Follow symbolic links during deduplication scan
+-r, --remove       Remove duplicates (PERMANENTLY DELETES FILES! USE WITH 
+                    CAUTION!)
+-f, --force        Skip user prompt for asking if you really want to 
+                    delete all duplicates and start deleting files 
+                    immediately. Can only be used together with option 
+                    "-r".
 ```
 
 ## Build Instructions

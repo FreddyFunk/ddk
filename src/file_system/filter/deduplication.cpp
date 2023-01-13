@@ -81,6 +81,60 @@ void tagDuplicateBinaries(std::vector<FileSystemItem *> &items) {
     }
 }
 
+void removeDuplicatesNotContainingDuplicatesFromBothPaths(
+    std::vector<std::vector<FileSystemItem *>> &duplicates,
+    const std::filesystem::path &p1,
+    const std::filesystem::path &p2) {
+    // compared to itself
+    if (p1 == p2) {
+        return;
+    }
+
+    const bool is_p2_base_of_p1 = COMMON::is_in_sub_directory(p1, p2);
+    const bool is_p1_base_of_p2 = COMMON::is_in_sub_directory(p2, p1);
+
+    // compared to a subdirectory
+    if (is_p1_base_of_p2 || is_p2_base_of_p1) {
+        const std::filesystem::path base_dir = is_p2_base_of_p1 ? p2 : p1;
+        const std::filesystem::path sub_dir = is_p2_base_of_p1 ? p1 : p2;
+        duplicates.erase(
+            std::remove_if(
+                duplicates.begin(), duplicates.end(),
+                [&](const auto &duplicate) {
+                    bool has_item_in_base_dir = false;
+                    bool has_item_in_sub_dir = false;
+                    for (const auto fsi : duplicate) {
+                        if (COMMON::is_in_sub_directory(fsi->getPath(), sub_dir)) {
+                            has_item_in_sub_dir = true;
+                        } else if (COMMON::is_in_sub_directory(fsi->getPath(), base_dir) &&
+                                   !COMMON::is_in_sub_directory(fsi->getPath(), sub_dir)) {
+                            has_item_in_base_dir = true;
+                        }
+                    }
+                    return !(has_item_in_sub_dir && has_item_in_base_dir);
+                }),
+            duplicates.end());
+        return;
+    }
+
+    duplicates.erase(std::remove_if(duplicates.begin(), duplicates.end(),
+                                    [&](const auto &duplicate) {
+                                        bool has_item_in_p1 = false;
+                                        bool has_item_in_p2 = false;
+                                        for (const auto fsi : duplicate) {
+                                            bool is_in_p1 =
+                                                COMMON::is_in_sub_directory(fsi->getPath(), p1);
+                                            if (is_in_p1) {
+                                                has_item_in_p1 = true;
+                                            } else {
+                                                has_item_in_p2 = true;
+                                            }
+                                        }
+                                        return !(has_item_in_p1 && has_item_in_p2);
+                                    }),
+                     duplicates.end());
+}
+
 std::vector<std::vector<FileSystemItem *>> getDuplicateClusters(
     const std::vector<FileSystemItem *> &items) {
     std::vector<FileSystemItem *> duplicates{};

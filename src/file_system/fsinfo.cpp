@@ -40,6 +40,7 @@ std::vector<FileSystemItem *> FileSystemInfo::getCurrentDirItems(bool sortedBySi
 std::vector<FileSystemItem *> FileSystemInfo::getAllFileSystemItems(bool sortedBySize,
                                                                     bool onlyFiles) const {
     std::vector<FileSystemItem *> items = getFileSystemItemsRecursive(m_root);
+    items.push_back(m_root);
 
     if (onlyFiles) {
         FILTER::COMMON::onlyFiles(items);
@@ -58,13 +59,34 @@ std::vector<std::vector<FileSystemItem *>> FileSystemInfo::getDuplicates() const
     return FILTER::DEDUPLICATION::getDuplicateClustersSorted(items);
 }
 
+std::vector<std::vector<FileSystemItem *>> FileSystemInfo::getDuplicatesFromCompare(
+    const FileSystemInfo *const compare) const {
+    auto items = getAllFileSystemItems();
+    auto items_compare = compare->getAllFileSystemItems();
+    items.insert(items.end(), items_compare.begin(), items_compare.end());
+
+    FILTER::COMMON::removeFSItemsWithIdenticalPath(items);
+    FILTER::DEDUPLICATION::tagDuplicateBinaries(items);
+    auto duplicates = FILTER::DEDUPLICATION::getDuplicateClustersSorted(items);
+    FILTER::DEDUPLICATION::removeDuplicatesNotContainingDuplicatesFromBothPaths(
+        duplicates, getRootPath(), compare->getRootPath());
+    return duplicates;
+}
+
 std::size_t FileSystemInfo::getDirectoriesCount() const {
-    return m_root->getChildSubDirectoriesCount();
+    const std::size_t root_counts =
+        (m_root->getItemType() == std::filesystem::file_type::directory) ? 1 : 0;
+    return m_root->getChildSubDirectoriesCount() + root_counts;
 }
 
 std::size_t FileSystemInfo::getSymlinksCount() const { return m_root->getChildSymlinksCount(); }
 
-std::size_t FileSystemInfo::getFilesCount() const { return m_root->getChildFilesCount(); }
+std::size_t FileSystemInfo::getFilesCount() const {
+    const std::size_t root_counts =
+        (m_root->getItemType() == std::filesystem::file_type::regular) ? 1 : 0;
+
+    return m_root->getChildFilesCount() + root_counts;
+}
 
 std::uintmax_t FileSystemInfo::getTotalSize() const { return m_root->getSizeInBytes(); }
 

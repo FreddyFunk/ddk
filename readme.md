@@ -46,3 +46,6 @@ cmake --build .
 # Run unit tests
 ctest
 ```
+
+## Installation
+[![Packaging status](https://repology.org/badge/vertical-allrepos/ddk.svg)](https://repology.org/project/ddk/versions)

@@ -17,10 +17,11 @@ std::string humanReadableSize(std::uintmax_t size) {
     return stream.str();
 }
 
-std::string getItemInfo(const DDK::FileSystemItem *item, bool fullPath) {
-    std::string itemInfo{};
+// pass std pair here
+std::string getItemInfo(std::pair<DDK::FileSystemItem *, bool> item, bool fullPath) {
+    std::string itemInfo = item.second ? "[*] " : "[ ] ";
 
-    switch (item->getError()) {
+    switch (item.first->getError()) {
     case DDK::FileSystemError::ACCESS_DENIED:
         itemInfo += "ERROR: ACCESS DENIED! ";
         break;
@@ -33,22 +34,23 @@ std::string getItemInfo(const DDK::FileSystemItem *item, bool fullPath) {
     }
 
     if (fullPath) {
-        itemInfo += item->getPathAsString();
+        itemInfo += item.first->getPathAsString();
     } else {
-        itemInfo += item->getItemName();
+        itemInfo += item.first->getItemName();
     }
 
     return itemInfo;
 }
 
-std::string getDuplicateGroups(const std::vector<DDK::FileSystemItem *> &duplicates) {
+std::string getDuplicateGroups(
+    const std::vector<std::pair<DDK::FileSystemItem *, bool>> &duplicates) {
     std::string duplicateInfo{};
 
-    duplicateInfo += "Duplicate Group with " + std::to_string(duplicates.size()) +
-                     " duplicates detected: " +
-                     humanReadableSize(duplicates.front()->getSizeInBytes() * duplicates.size()) +
-                     " [" + std::to_string(duplicates.size()) + " x " +
-                     humanReadableSize(duplicates.front()->getSizeInBytes()) + "]\n";
+    duplicateInfo +=
+        "Duplicate Group with " + std::to_string(duplicates.size()) + " duplicates detected: " +
+        humanReadableSize(duplicates.front().first->getSizeInBytes() * duplicates.size()) + " [" +
+        std::to_string(duplicates.size()) + " x " +
+        humanReadableSize(duplicates.front().first->getSizeInBytes()) + "]\n";
     for (const auto duplicate : duplicates) {
         duplicateInfo += getItemInfo(duplicate, true) + "\n";
     }
@@ -56,15 +58,41 @@ std::string getDuplicateGroups(const std::vector<DDK::FileSystemItem *> &duplica
     return duplicateInfo;
 }
 
+std::vector<std::pair<DDK::FileSystemItem *, bool>> deletableDuplicates(
+    std::vector<DDK::FileSystemItem *> duplicates, const std::filesystem::path &path_compare_root) {
+    DDK::FILTER::COMMON::sortFSitemsByPathLexicographically(duplicates);
+    std::vector<std::pair<DDK::FileSystemItem *, bool>> duplicatesTagged{};
+    for (const auto &duplicate : duplicates) {
+        if (!DDK::FILTER::COMMON::is_in_sub_directory(duplicate->getPath(), path_compare_root)) {
+            duplicatesTagged.push_back(std::make_pair(duplicate, true));
+        } else {
+            duplicatesTagged.push_back(std::make_pair(duplicate, false));
+        }
+    }
+    return duplicatesTagged;
+}
+
+std::vector<std::pair<DDK::FileSystemItem *, bool>> deletableDuplicates(
+    std::vector<DDK::FileSystemItem *> duplicates) {
+    DDK::FILTER::COMMON::sortFSitemsByPathLexicographically(duplicates);
+    std::vector<std::pair<DDK::FileSystemItem *, bool>> duplicatesTagged{};
+    // skip first entry of duplicate list since only the remaining entries are duplicates of the
+    // first entry
+    duplicatesTagged.push_back(std::make_pair(duplicates.at(0), false));
+    for (std::size_t i = 1; i < duplicates.size(); i++) {
+        duplicatesTagged.push_back(std::make_pair(duplicates.at(i), true));
+    }
+    return duplicatesTagged;
+}
+
 std::string getDuplicateList(const std::vector<DDK::FileSystemItem *> &duplicates) {
     std::string duplicateInfo{};
 
-    // skip first entry of duplicate list since only the remaining entries are duplicates of the
-    // first entry
-    for (std::size_t i = 1; i < duplicates.size(); i++) {
-        duplicateInfo += duplicates.at(i)->getPathAsString() + "\n";
+    for (const auto &duplicate : deletableDuplicates(duplicates)) {
+        if (duplicate.second) {
+            duplicateInfo += duplicate.first->getPathAsString() + "\n";
+        }
     }
-
     return duplicateInfo;
 }
 
@@ -72,9 +100,9 @@ std::string getDuplicateListFromCompare(const std::vector<DDK::FileSystemItem *>
                                         const std::filesystem::path &path_compare_root) {
     std::string duplicateInfo{};
 
-    for (const auto &duplicate : duplicates) {
-        if (!DDK::FILTER::COMMON::is_in_sub_directory(duplicate->getPath(), path_compare_root)) {
-            duplicateInfo += duplicate->getPathAsString() + "\n";
+    for (const auto &duplicate : deletableDuplicates(duplicates, path_compare_root)) {
+        if (duplicate.second) {
+            duplicateInfo += duplicate.first->getPathAsString() + "\n";
         }
     }
     return duplicateInfo;
@@ -136,7 +164,7 @@ std::string parseDuplicatesDetailed(
     }
 
     for (const auto duplicate : duplicates) {
-        result += getDuplicateGroups(duplicate) + "\n";
+        result += getDuplicateGroups(deletableDuplicates(duplicate)) + "\n";
     }
 
     return result;
@@ -156,7 +184,7 @@ std::string parseDuplicatesDetailedCompare(
     }
 
     for (const auto duplicate : duplicates) {
-        result += getDuplicateGroups(duplicate) + "\n";
+        result += getDuplicateGroups(deletableDuplicates(duplicate, compare_path)) + "\n";
     }
 
     return result;

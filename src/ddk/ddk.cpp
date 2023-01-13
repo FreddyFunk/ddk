@@ -5,6 +5,7 @@
 #include <cxxopts.hpp>
 #include <fmt/color.h>
 #include <fmt/core.h>
+#include <iostream>
 
 static void printVersion() { fmt::print("{}\n", DDK_VERSION); }
 
@@ -77,7 +78,6 @@ int main(int argc, char *argv[]) {
         ("d,detailed", "Show detailed information about deduplication scan", cxxopts::value<bool>()->default_value("false"))
         ("l,symlinks", "Follow symbolic links during deduplication scan", cxxopts::value<bool>()->default_value("false"))
         ("r,remove", "Remove duplicates (PERMANENTLY DELETES FILES! USE WITH CAUTION!)", cxxopts::value<bool>()->default_value("false"))
-        ("i,remove-interactive", "Go through each duplicate one by one and let the user select which files should be deleted", cxxopts::value<bool>()->default_value("false"))
         ("f,force", "Skip user prompt for asking if you really want to delete all duplicates and start deleting files immediately. Can only be used together with option \"-r\".", cxxopts::value<bool>()->default_value("false"))
         ;
     // clang-format on
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
     }
 
     // do not allow duplicate options
-    for (const auto &option : {"h", "v", "p", "c", "d", "l", "r", "i"}) {
+    for (const auto &option : {"h", "v", "p", "c", "d", "l", "r", "f"}) {
         if (result.count(option) > 1) {
             printInvalidOptions();
             return 1;
@@ -112,12 +112,14 @@ int main(int argc, char *argv[]) {
 
     const bool analyze_symLinks = result["l"].as<bool>();
     const bool detailed = result["d"].as<bool>();
+    const bool compare = result.count("c") == 1;
     const bool remove = result["r"].as<bool>();
-    const bool remove_interactive = result["i"].as<bool>();
+    const bool remove_force = result["f"].as<bool>();
     const std::filesystem::path path = getPathFromOption(result, "p");
     const DDK::FileSystemInfo fsinfo(path, analyze_symLinks);
+    const DDK::FileSystemInfo *fsinfo_compare;
 
-    if (result.count("c") == 1) {
+    if (compare) {
         const std::filesystem::path path_compare = getPathFromOption(result, "c");
         if (path == path_compare) {
             fmt::print(fmt::emphasis::bold | fmt::emphasis::italic | fg(fmt::color::red),
@@ -141,20 +143,55 @@ int main(int argc, char *argv[]) {
                 "within \"{}\" that are not located within \"{}\" are listed.",
                 path.string(), path_compare.string());
             fmt::print("\n");
-            if (detailed) {
-                fmt::print(
-                    fmt::emphasis::bold | fmt::emphasis::italic | fg(fmt::color::yellow),
-                    "WARN: Comparing to a subdirectory is not recommended and might result in an"
-                    " incorrect scan summary when using \"-d\".");
-                fmt::print("\n");
-            }
         }
 
-        const DDK::FileSystemInfo compare(path_compare, analyze_symLinks);
-        printResultsDedupCompare(&fsinfo, &compare, detailed);
+        fsinfo_compare = new DDK::FileSystemInfo(path_compare, analyze_symLinks);
+        printResultsDedupCompare(&fsinfo, fsinfo_compare, detailed);
     } else {
         printResultsDedup(&fsinfo, detailed);
     }
 
+    // TODO: store duplicates in ddk main to prevent recalculation during delete
+
+    // TODO: Check if any duplicates were found before trying to delete
+    if (remove) {
+        // safety prompt
+        if (!remove_force) {
+            std::string proceed = "";
+            do {
+                fmt::print(
+                    fmt::emphasis::bold | fg(fmt::color::red),
+                    "Do you want to you want to PERMANENTLY DELETE the listed duplicates? [y/n]: ");
+                std::cin >> proceed;
+            } while (!std::cin.fail() && proceed != "y" && proceed != "n");
+            if (proceed != "y") {
+                return 0;
+            }
+        }
+
+        // remove duplicates
+        if (compare) {
+            const auto duplicates = fsinfo.getDuplicatesFromCompare(fsinfo_compare);
+            for (const auto duplicate : duplicates) {
+                for (const auto fsi : duplicate) {
+                    if (!DDK::FILTER::COMMON::is_in_sub_directory(fsi->getPath(),
+                                                                  fsinfo_compare->getRootPath())) {
+                        std::filesystem::remove(fsi->getPath());
+                    }
+                }
+            }
+        } else {
+            const auto duplicates = fsinfo.getDuplicates();
+            for (const auto duplicate : duplicates) {
+                for (std::size_t i = 1; i < duplicate.size(); i++) {
+                    std::filesystem::remove(duplicate.at(i)->getPath());
+                }
+            }
+        }
+    }
+
+    if (compare) {
+        delete fsinfo_compare;
+    }
     return 0;
 }

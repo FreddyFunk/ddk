@@ -26,6 +26,7 @@ jobs:
         env:
           author: ${{ github.event.pull_request.user.login }}
           repo: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           perm=$(gh api "repos/$repo/collaborators/$author/permission" \
               --jq '.permission')
@@ -44,6 +45,7 @@ jobs:
         if: env.STATE != 'success'
         env:
           prid: ${{ github.event.pull_request.number }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           approved=$(gh pr view "$prid" --repo "$GITHUB_REPOSITORY" \
               --json reviews --jq '
@@ -72,6 +74,7 @@ jobs:
 
       - name: Set result in separate status
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           sha: ${{ github.event.pull_request.head.sha }}
           repo: ${{ github.repository }}
           id: ${{ github.run_id }}

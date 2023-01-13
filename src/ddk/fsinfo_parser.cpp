@@ -103,6 +103,27 @@ std::string FSinfoDuplicateList(const DDK::FileSystemInfo *const fsinfo,
     return result;
 }
 
+std::uint64_t redundant_size(const std::vector<std::vector<DDK::FileSystemItem *>> &duplicates,
+                             const std::filesystem::path &compare_path) {
+    std::uint64_t redundant_data_size = 0;
+    for (const auto duplicate : duplicates) {
+        for (const auto fsi : duplicate) {
+            if (!FILTER::COMMON::is_in_sub_directory(fsi->getPath(), compare_path)) {
+                redundant_data_size += fsi->getSizeInBytes();
+            }
+        }
+    }
+    return redundant_data_size;
+}
+
+std::uint64_t redundant_size(const std::vector<std::vector<DDK::FileSystemItem *>> &duplicates) {
+    std::uint64_t redundant_data_size = 0;
+    for (const auto duplicate : duplicates) {
+        redundant_data_size += (duplicate.size() - 1) * duplicate.front()->getSizeInBytes();
+    }
+    return redundant_data_size;
+}
+
 std::string parseDuplicatesDetailed(
     const std::vector<std::vector<DDK::FileSystemItem *>> &duplicates) {
     std::string result{};
@@ -111,12 +132,27 @@ std::string parseDuplicatesDetailed(
         return "No duplicates found!\n";
     } else {
         result += "Duplicate Groups found: " + std::to_string(duplicates.size()) + "\n";
+        result += "Redundant data: " + humanReadableSize(redundant_size(duplicates)) + "\n\n";
+    }
 
-        std::size_t redundant_data_size = 0;
-        for (const auto duplicate : duplicates) {
-            redundant_data_size += (duplicate.size() - 1) * duplicate.front()->getSizeInBytes();
-        }
-        result += "Redundant data: " + humanReadableSize(redundant_data_size) + "\n\n";
+    for (const auto duplicate : duplicates) {
+        result += getDuplicateGroups(duplicate) + "\n";
+    }
+
+    return result;
+}
+
+std::string parseDuplicatesDetailedCompare(
+    const std::vector<std::vector<DDK::FileSystemItem *>> &duplicates,
+    const std::filesystem::path &compare_path) {
+    std::string result{};
+
+    if (duplicates.empty()) {
+        return "No duplicates found!\n";
+    } else {
+        result += "Duplicate Groups found: " + std::to_string(duplicates.size()) + "\n";
+        result += "Redundant data: " + humanReadableSize(redundant_size(duplicates, compare_path)) +
+                  "\n\n";
     }
 
     for (const auto duplicate : duplicates) {
@@ -132,7 +168,8 @@ std::string FSinfoDuplicateListDetailed(const DDK::FileSystemInfo *const fsinfo)
 
 std::string FSinfoDuplicateListDetailed(const DDK::FileSystemInfo *const fsinfo,
                                         const DDK::FileSystemInfo *const compare) {
-    return parseDuplicatesDetailed(fsinfo->getDuplicatesFromCompare(compare));
+    return parseDuplicatesDetailedCompare(fsinfo->getDuplicatesFromCompare(compare),
+                                          compare->getRootPath());
 }
 
 std::string summary(const DDK::FileSystemInfo *const fsinfo) {

@@ -32,7 +32,7 @@ set(CPACK_DEB_COMPONENT_INSTALL YES)
 # Replace "Darwin" with "Universal" in TGZ name
 if(APPLE)
   set(CPACK_PACKAGE_FILE_NAME
-      "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-Universal")
+      "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}macOS-Universal")
 endif(APPLE)
 
 include(CPack)

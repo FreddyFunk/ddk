@@ -2,14 +2,9 @@ name: Build & Test
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main", "dev**", "release**" ]
-    types:
-      - opened
-      - reopened
-      - edited
-      - synchronize
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)

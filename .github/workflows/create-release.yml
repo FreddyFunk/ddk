@@ -26,7 +26,7 @@ jobs:
         workflow: build.yml
         workflow_conclusion: success
         path: artifacts
-        skip_unpack: true
+        skip_unpack: false
 
     - name: Get current semver
       run: semver=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt)

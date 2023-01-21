@@ -2,7 +2,7 @@ name: Cross-Plattform Build & Test
 
 on:
   push:
-    branches: [ "main", "aarch64" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main", "dev**", "release**" ]
 

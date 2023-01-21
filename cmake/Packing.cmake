@@ -29,4 +29,10 @@ set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE) # ONE_PER_GROUP)
 # without this you won't be able to pack only specified component
 set(CPACK_DEB_COMPONENT_INSTALL YES)
 
+# Replace "Darwin" with "Universal" in TGZ name
+if(APPLE)
+  set(CPACK_PACKAGE_FILE_NAME
+      "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}macOS-Universal")
+endif(APPLE)
+
 include(CPack)

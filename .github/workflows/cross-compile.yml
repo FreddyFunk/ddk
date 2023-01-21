@@ -24,8 +24,9 @@ jobs:
         include:
           - arch: aarch64
             distro: ubuntu_latest
-          - arch: aarch64
-            distro: fedora_latest
+          # disabled due to very bad performance
+          # - arch: aarch64
+          #   distro: fedora_latest
           - arch: ppc64le
             distro: ubuntu_latest
           - arch: s390x
@@ -153,6 +154,7 @@ jobs:
           cmake --build . --config ${{env.BUILD_TYPE}}
           ctest -C ${{env.BUILD_TYPE}} --output-on-failure
           cpack -G RPM
+          rename 's/\.([^.]+)$/-x64.$1/
           
     - name: Upload artefact
       uses: actions/upload-artifact@v3

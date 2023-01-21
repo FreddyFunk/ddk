@@ -5,6 +5,11 @@ on:
     branches: [ "**" ]
   pull_request:
     branches: [ "main", "dev**", "release**" ]
+    types:
+      - opened
+      - reopened
+      - edited
+      - synchronize
 
 jobs:
   check-format:

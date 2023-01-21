@@ -25,7 +25,6 @@ jobs:
       with:
         workflow: build.yml
         workflow_conclusion: success
-        path: artifacts
         skip_unpack: false
 
     - name: Get current semver
@@ -56,4 +55,4 @@ jobs:
         # body_path: ${{ github.workspace }}-CHANGELOG.txt
         generate_release_notes: true
         tag_name: ${{ steps.version.outputs.semver }}
-        files: ./artifacts/*
+        files: ./artifact/*

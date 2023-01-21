@@ -232,7 +232,7 @@ jobs:
 
           cd /workplace/_packages/
           for file in *.tar.gz; do
-              cut -d, -f2- "${file}" > "${file%.*}-${{ riscv64 }}.tar.gz"
+              cut -d, -f2- "${file}" > "${file%.*}-riscv64.tar.gz"
               rm "${file}"
           done
           

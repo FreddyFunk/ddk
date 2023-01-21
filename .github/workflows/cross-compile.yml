@@ -97,7 +97,7 @@ jobs:
           cd /workplace/_packages/
           for file in *.tar.gz; do
               cut -d, -f2- "${file}" > "${file%.*}-${{ matrix.arch }}.tar.gz"
-              rm "${file}".tar.gz
+              rm "${file}"
           done
           
     - name: Upload artefact
@@ -164,7 +164,7 @@ jobs:
           cd /workplace/_packages/
           for file in *.rpm; do
               cut -d, -f2- "${file}" > "${file%.*}-x64.rpm"
-              rm "${file}".rpm
+              rm "${file}"
           done
           
     - name: Upload artefact

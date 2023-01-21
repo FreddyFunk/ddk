@@ -93,6 +93,12 @@ jobs:
               cpack -G RPM
               ;;
           esac
+
+          cd /workplace/_packages/
+          for file in *.tar.gz; do
+              cut -d, -f2- "${file}" > "${file%.*}-${{ matrix.arch }}.tar.gz"
+              rm "${file}".tar.gz
+          done
           
     - name: Upload artefact
       uses: actions/upload-artifact@v3
@@ -158,6 +164,7 @@ jobs:
           cd /workplace/_packages/
           for file in *.rpm; do
               cut -d, -f2- "${file}" > "${file%.*}-x64.rpm"
+              rm "${file}".rpm
           done
           
     - name: Upload artefact

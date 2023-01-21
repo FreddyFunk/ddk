@@ -4,7 +4,7 @@ name: GitHub Release
 
 on: 
   workflow_run:
-    workflows: [Build & Test]
+    workflows: [Build & Test, Cross-Plattform Build & Test]
     branches: [main]
     types: [completed]
 
@@ -24,6 +24,14 @@ jobs:
       uses: dawidd6/action-download-artifact@v2
       with:
         workflow: build.yml
+        workflow_conclusion: success
+        skip_unpack: false
+  
+    - name: Download artifact (cross-compiled)
+      id: download-artifact
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        workflow: cross-compile.yml
         workflow_conclusion: success
         skip_unpack: false
 

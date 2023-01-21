@@ -25,13 +25,6 @@ jobs:
         workflow: build.yml
         workflow_conclusion: success
         skip_unpack: false
-  
-    - name: Download artifact (cross-compiled)
-      uses: dawidd6/action-download-artifact@v2
-      with:
-        workflow: cross-compile.yml
-        workflow_conclusion: success
-        skip_unpack: false
 
     - name: Get current semver
       run: semver=$(awk -v project="$project_name" '$0 ~ project{flag=1;next} /VERSION/{if(flag) print $2} {flag=0}' CMakeLists.txt)

@@ -155,7 +155,7 @@ jobs:
           ctest -C ${{env.BUILD_TYPE}} --output-on-failure
           cpack -G RPM
 
-          /workplace/_packages/
+          cd /workplace/_packages/
           rename 's/\.([^.]+)$/-x64.$1/
           
     - name: Upload artefact

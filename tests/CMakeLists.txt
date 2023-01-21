@@ -2,7 +2,7 @@
 # https://cliutils.gitlab.io/modern-cmake/chapters/testing/googletest.html
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/externals/googletest"
-                 "externals/googletest")
+                 "externals/googletest" EXCLUDE_FROM_ALL)
 
 mark_as_advanced(
   BUILD_GMOCK

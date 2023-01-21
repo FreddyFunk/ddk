@@ -1,6 +1,9 @@
 # Build directory
 [Bb]uild*/
 
+# Generated packages
+_packages/
+
 # Project/editor files
 .vs/
 .vscode/

@@ -10,8 +10,7 @@ replicate_directory_structure(${PROJECT_NAME}::ddk)
 target_link_libraries(ddk PRIVATE file_system fmt::fmt-header-only
                                   cxxopts::cxxopts)
 
-set_target_properties(
-  ddk
-  PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/release/ddk"
-             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/release/ddk"
-             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/release/ddk")
+install(
+  TARGETS ddk
+  EXPORT DDKTargets
+  RUNTIME DESTINATION bin)

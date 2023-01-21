@@ -9,6 +9,7 @@ add_library(
   fsitem.cpp
   fsitem.hpp)
 add_library(${PROJECT_NAME}::file_system ALIAS file_system)
+target_compile_features(file_system PUBLIC cxx_std_17)
 
 target_code_coverage(file_system)
 

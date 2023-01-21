@@ -54,7 +54,7 @@ jobs:
 
         # Pass some environment variables to the container
         env: | # YAML, but pipe character is necessary
-          BUILD_TYPE: ${{ BUILD_TYPE }}
+          BUILD_TYPE: ${{ env.BUILD_TYPE }}
 
         # The shell to run commands with in the container
         shell: /bin/sh

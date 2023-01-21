@@ -1,0 +1,89 @@
+name: Cross-Plattform Build & Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main", "dev**", "release**" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ubuntu-latest
+    name: Build on ${{ matrix.distro }} ${{ matrix.arch }}
+
+    # Run steps on a matrix of 4 arch/distro combinations
+    strategy:
+      matrix:
+        include:
+          - arch: aarch64
+            distro: ubuntu-latest
+          - arch: ppc64le
+            distro: ubuntu-latest
+          - arch: s390x
+            distro: ubuntu-latest
+          - arch: none
+            distro: none
+            base_image: riscv64/busybox
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: uraimo/run-on-arch-action@v2
+      name: Build artifact
+      id: build
+      with:
+        arch: ${{ matrix.arch }}
+        distro: ${{ matrix.distro }}
+
+        # Not required, but speeds up builds
+        githubToken: ${{ github.token }}
+
+        # Create an artifacts directory
+        setup: |
+          mkdir -p "${PWD}/artifacts"
+
+        # Mount the artifacts directory as /artifacts in the container
+        dockerRunArgs: |
+          --volume "${PWD}/artifacts:/artifacts"
+
+        # Pass some environment variables to the container
+        env: | # YAML, but pipe character is necessary
+          BUILD_TYPE: ${{ BUILD_TYPE }}
+
+        # The shell to run commands with in the container
+        shell: /bin/sh
+
+        # Install some dependencies in the container. This speeds up builds if
+        # you are also using githubToken. Any dependencies installed here will
+        # be part of the container image that gets cached, so subsequent
+        # builds don't have to re-install them. The image layer is cached
+        # publicly in your project's package repository, so it is vital that
+        # no secrets are present in the container state or logs.
+        install: |
+          find .
+          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+          cd ${{github.workspace}}/build
+          cmake --build . --config ${{env.BUILD_TYPE}}
+          ctest -C ${{env.BUILD_TYPE}} --output-on-failure
+          cpack -G DEB
+
+        # Produce a binary artifact and place it in the mounted volume
+        run: |
+          cp ./_package/* "/artifacts/"
+
+    - name: Show the artifact
+      # Items placed in /artifacts in the container will be in
+      # ${PWD}/artifacts on the host.
+      run: |
+        ls -al "${PWD}/artifacts"
+
+    - name: Upload artefact
+      uses: actions/upload-artifact@v3
+      with:
+        path: ${{github.workspace}}/artifacts/

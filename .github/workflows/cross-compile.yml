@@ -156,7 +156,9 @@ jobs:
           cpack -G RPM
 
           cd /workplace/_packages/
-          rename 's/\.([^.]+)$/-x64.$1/
+          for file in *.rpm; do
+              cut -d, -f2- "${file}" > "${file%.*}-x64.rpm"
+          done
           
     - name: Upload artefact
       uses: actions/upload-artifact@v3

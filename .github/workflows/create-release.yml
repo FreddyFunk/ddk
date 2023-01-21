@@ -4,7 +4,7 @@ name: GitHub Release
 
 on: 
   workflow_run:
-    workflows: [Build & Test, Cross-Plattform Build & Test]
+    workflows: [Build & Test]
     branches: [main]
     types: [completed]
 

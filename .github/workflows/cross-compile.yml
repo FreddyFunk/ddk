@@ -171,3 +171,72 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         path: ${{github.workspace}}/_packages/
+
+
+
+  build-riscv64:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ubuntu-latest
+    name: Build on RISC-V 64
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: uraimo/run-on-arch-action@v2
+      name: Build artifact
+      id: build
+      with:
+        arch: none
+        distro: none
+        base_image: riscv64/ubuntu
+
+        # Not required, but speeds up builds by storing container images in
+        # a GitHub package registry.
+        githubToken: ${{ github.token }}
+
+        # Mount the artifacts directory as /artifacts in the container
+        dockerRunArgs: |
+          --volume "${PWD}:/workplace"
+
+        # Pass some environment variables to the container
+        env: | # YAML, but pipe character is necessary
+          BUILD_TYPE: ${{ env.BUILD_TYPE }}
+
+        # The shell to run commands with in the container
+        shell: /bin/sh
+
+        # Install some dependencies in the container. This speeds up builds if
+        # you are also using githubToken. Any dependencies installed here will
+        # be part of the container image that gets cached, so subsequent
+        # builds don't have to re-install them. The image layer is cached
+        # publicly in your project's package repository, so it is vital that
+        # no secrets are present in the container state or logs.
+        install: |
+          apt-get update -q -y
+          apt-get install -q -y git cmake g++ dpkg
+
+        # Produce a binary artifact and place it in the mounted volume
+        run: |
+          git config --global --add safe.directory /workplace
+          find /workplace/externals -maxdepth 1 -type d -exec bash -c 'git config --global --add safe.directory ${0%}' {} \;
+
+          cd /workplace
+          cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+          cd ./build
+          cmake --build . --config ${{env.BUILD_TYPE}}
+          ctest -C ${{env.BUILD_TYPE}} --output-on-failure
+
+          cpack -G DEB
+          cpack -G TGZ
+
+          cd /workplace/_packages/
+          for file in *.tar.gz; do
+              cut -d, -f2- "${file}" > "${file%.*}-${{ riscv64 }}.tar.gz"
+              rm "${file}"
+          done
+          
+    - name: Upload artefact
+      uses: actions/upload-artifact@v3
+      with:
+        path: ${{github.workspace}}/_packages/

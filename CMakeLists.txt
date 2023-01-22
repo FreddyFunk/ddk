@@ -5,7 +5,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 project(
   DDK
   VERSION 2.2.1
-  DESCRIPTION "DeDuplicationKit"
+  DESCRIPTION "DeDuplicationKit: Advanced File Storage Deduplication"
   LANGUAGES CXX)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})

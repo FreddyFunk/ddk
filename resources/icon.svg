@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 1110 1110" preserveAspectRatio="xMidYMid meet"
+  xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <title>DDK Icon</title>
+
+  <style>
+    @import url("http://fonts.googleapis.com/css?family=Oswald:800");
+
+    text {
+    font: 14.5em/1 Oswald, Impact;
+    text-anchor: middle;
+    fill: #16425B;
+    }
+  </style>
+
+  <defs>
+    <pattern id="pattern"
+      width="4" height="5"
+      patternUnits="userSpaceOnUse"
+      patternTransform="rotate(45 50 50)">
+      <line stroke="#16425B" stroke-width="3px" y2="10" />
+    </pattern>
+  </defs>
+
+  <rect x="60" y="60" width="405" height="405" stroke="#16425B" fill="transparent" stroke-width="90" stroke-dasharray="90, 45" stroke-dashoffset="45"/>
+  <text x="170" y="266" transform="scale(1.5)">
+    <tspan fill="url(#pattern)" stroke="#16425B" stroke-width="2px">D</tspan>
+  </text>
+
+  <rect x="645" y="60" width="405" height="405" stroke="#16425B" fill="transparent" stroke-width="90"/>
+  <text x="564" y="266" transform="scale(1.5)">
+    D
+  </text>
+
+  <rect x="60" y="645" width="405" height="405" stroke="#16425B" fill="transparent" stroke-width="90"/>
+  <text x="170" y="655" transform="scale(1.5)">
+    K
+  </text>
+</svg>

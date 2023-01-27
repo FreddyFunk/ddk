@@ -1,4 +1,5 @@
-# _`D`e`D`uplication`K`it_ 
+![DDK Banner](./resources/banner.svg)
+# _`D`e`D`uplication`K`it_
 
 ![Build & Test](https://github.com/FreddyFunk/ddk/actions/workflows/build.yml/badge.svg?branch=main)
 ![CodeQL](https://github.com/FreddyFunk/ddk/actions/workflows/codeql.yml/badge.svg?branch=main)

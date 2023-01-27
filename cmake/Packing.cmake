@@ -40,4 +40,6 @@ if(APPLE)
       "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-macOS-Universal")
 endif(APPLE)
 
+set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/icon.ico")
+
 include(CPack)

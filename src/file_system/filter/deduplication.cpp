@@ -54,12 +54,14 @@ void removeFilesWithUniqueHash(std::vector<FileSystemItem *> &items) {
     }
 }
 
-void tagDuplicateBinaries(std::vector<FileSystemItem *> &items) {
+std::vector<std::size_t> extractDuplicatesAndGetRanges(std::vector<FileSystemItem *> &items) {
     COMMON::onlyFiles(items);
     COMMON::removeEmptyFiles(items);
     removeFilesWithUniqueSize(items);
     calculateHashValues(items);
     removeFilesWithUniqueHash(items);
+
+    std::vector<std::size_t> ranges{};
 
     for (std::size_t i = 0; i < items.size(); i++) {
         std::size_t range = i;
@@ -67,18 +69,11 @@ void tagDuplicateBinaries(std::vector<FileSystemItem *> &items) {
                items.at(i)->getHash() == items.at(range + 1)->getHash()) {
             range++;
         }
-
-        for (std::size_t outer = 0; outer < range - i; outer++) {
-            for (std::size_t inner = 0; inner < range - i; inner++) {
-                if (inner != outer) {
-                    items.at(i + inner)->addDuplicate(items.at(i + outer));
-                    items.at(i + outer)->addDuplicate(items.at(i + inner));
-                }
-            }
-        }
-
+        ranges.push_back(range);
         i += range - i;
     }
+
+    return ranges;
 }
 
 void removeDuplicatesNotContainingDuplicatesFromBothPaths(

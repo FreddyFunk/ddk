@@ -1,7 +1,7 @@
 #include "../fsitem.hpp"
 
 namespace DDK::FILTER::DEDUPLICATION {
-void tagDuplicateBinaries(std::vector<FileSystemItem *> &items);
+std::vector<std::size_t> extractDuplicatesAndGetRanges(std::vector<FileSystemItem *> &items);
 void removeDuplicatesNotContainingDuplicatesFromBothPaths(
     std::vector<std::vector<FileSystemItem *>> &duplicates,
     const std::filesystem::path &p1,

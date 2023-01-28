@@ -181,11 +181,14 @@ int main(int argc, char *argv[]) {
                 }
             }
         } else {
-            const auto duplicates = fsinfo.getDuplicates();
-            for (const auto duplicate : duplicates) {
-                for (std::size_t i = 1; i < duplicate.size(); i++) {
-                    std::filesystem::remove(duplicate.at(i)->getPath());
+            const auto [items, ranges] = fsinfo.getDuplicates();
+            std::size_t range_start = 0;
+            for (std::size_t range = 0; range < ranges.size(); range++) {
+                std::size_t range_end = range_start + ranges.at(range);
+                for (std::size_t i = range_start; i < range_end; i++) {
+                    std::filesystem::remove(items.at(i)->getPath());
                 }
+                range_start = range_end;
             }
         }
     }

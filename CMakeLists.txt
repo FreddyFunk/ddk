@@ -49,6 +49,5 @@ endif()
 
 # Packing
 install(FILES ${CMAKE_SOURCE_DIR}/LICENSE.md DESTINATION ./)
-install(FILES ${CMAKE_SOURCE_DIR}/resources/icon.ico DESTINATION ./)
 install(FILES ${CMAKE_SOURCE_DIR}/README.md DESTINATION ./)
 include(Packing)

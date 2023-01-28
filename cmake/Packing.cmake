@@ -19,7 +19,8 @@ set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Frederic Laing")
 
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+set(CPACK_PACKAGE_DESCRIPTION
+    "ddk is a simple command line tool for finding duplicate files.")
 
 # package name for deb. If set, then instead of some-application-0.9.2-Linux.deb
 # you'll get some-application_0.9.2_amd64.deb (note the underscores too)
@@ -39,7 +40,5 @@ if(APPLE)
   set(CPACK_PACKAGE_FILE_NAME
       "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-macOS-Universal")
 endif(APPLE)
-
-set(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/icon.ico")
 
 include(CPack)

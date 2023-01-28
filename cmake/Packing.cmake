@@ -1,6 +1,6 @@
 # based on: https://decovar.dev/blog/2021/09/23/cmake-cpack-package-deb-apt/
 
-set(CPACK_PACKAGE_NAME "${PROJECT_NAME}-${PROJECT_DESCRIPTION}")
+set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
 set(CPACK_PACKAGE_VENDOR "Frederic Laing")
 
@@ -14,10 +14,13 @@ set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 
 set(CPACK_PACKAGE_CONTACT "frederic.laing.development@gmail.com")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/FreddyFunk/ddk")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Frederic Laing")
 
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+set(CPACK_PACKAGE_DESCRIPTION
+    "ddk is a simple command line tool for finding duplicate files.")
 
 # package name for deb. If set, then instead of some-application-0.9.2-Linux.deb
 # you'll get some-application_0.9.2_amd64.deb (note the underscores too)

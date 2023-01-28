@@ -180,22 +180,23 @@
   <animate id="background_letter_15_animation_visibilty" xlink:href="#background_letter_15" attributeName="visibility" from="hidden" to="visible" begin="background_letter_14_animation_visibilty.end" dur="0.3s"/>
   <animate id="background_letter_16_animation_visibilty" xlink:href="#background_letter_16" attributeName="visibility" from="hidden" to="visible" begin="background_letter_15_animation_visibilty.end" dur="0.3s"/>
   
-  <set id="background_letter_01_animation_fill" xlink:href="#background_letter_01" attributeName="fill" to="#16425B" begin="background_letter_01_animation_visibilty.end"/>
-  <set id="background_letter_02_animation_fill" xlink:href="#background_letter_02" attributeName="fill" to="#16425B" begin="background_letter_02_animation_visibilty.end"/>
-  <set id="background_letter_03_animation_fill" xlink:href="#background_letter_pattern_03" attributeName="visibility" to="visible" begin="background_letter_03_animation_visibilty.end"/>
-  <set id="background_letter_04_animation_fill" xlink:href="#background_letter_04" attributeName="fill" to="#16425B" begin="background_letter_04_animation_visibilty.end"/>
-  <set id="background_letter_05_animation_fill" xlink:href="#background_letter_05" attributeName="fill" to="#16425B" begin="background_letter_05_animation_visibilty.end"/>
-  <set id="background_letter_06_animation_fill" xlink:href="#background_letter_06" attributeName="fill" to="#16425B" begin="background_letter_06_animation_visibilty.end"/>
-  <set id="background_letter_07_animation_fill" xlink:href="#background_letter_07" attributeName="fill" to="#16425B" begin="background_letter_07_animation_visibilty.end"/>
-  <set id="background_letter_08_animation_fill" xlink:href="#background_letter_08" attributeName="fill" to="#16425B" begin="background_letter_08_animation_visibilty.end"/>
-  <set id="background_letter_09_animation_fill" xlink:href="#background_letter_09" attributeName="fill" to="#16425B" begin="background_letter_09_animation_visibilty.end"/>
-  <set id="background_letter_10_animation_fill" xlink:href="#background_letter_10" attributeName="fill" to="#16425B" begin="background_letter_10_animation_visibilty.end"/>
-  <set id="background_letter_11_animation_fill" xlink:href="#background_letter_pattern_11" attributeName="visibility" to="visible" begin="background_letter_11_animation_visibilty.end"/>
-  <set id="background_letter_12_animation_fill" xlink:href="#background_letter_12" attributeName="fill" to="#16425B" begin="background_letter_12_animation_visibilty.end"/>
-  <set id="background_letter_13_animation_fill" xlink:href="#background_letter_13" attributeName="fill" to="#16425B" begin="background_letter_13_animation_visibilty.end"/>
-  <set id="background_letter_14_animation_fill" xlink:href="#background_letter_14" attributeName="fill" to="#16425B" begin="background_letter_14_animation_visibilty.end"/>
-  <set id="background_letter_15_animation_fill" xlink:href="#background_letter_pattern_15" attributeName="visibility" to="visible" begin="background_letter_15_animation_visibilty.end"/>
-  <set id="background_letter_16_animation_fill" xlink:href="#background_letter_pattern_16" attributeName="visibility" to="visible" begin="background_letter_16_animation_visibilty.end"/>
+  <!-- The latency in the animation begin is required due to a Safari bug. Without the offset, Safari will randomly not apply this animation after the first iteration. -->
+  <set id="background_letter_01_animation_fill" xlink:href="#background_letter_01" attributeName="fill" to="#16425B" begin="background_letter_01_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_02_animation_fill" xlink:href="#background_letter_02" attributeName="fill" to="#16425B" begin="background_letter_02_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_03_animation_fill" xlink:href="#background_letter_pattern_03" attributeName="visibility" to="visible" begin="background_letter_03_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_04_animation_fill" xlink:href="#background_letter_04" attributeName="fill" to="#16425B" begin="background_letter_04_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_05_animation_fill" xlink:href="#background_letter_05" attributeName="fill" to="#16425B" begin="background_letter_05_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_06_animation_fill" xlink:href="#background_letter_06" attributeName="fill" to="#16425B" begin="background_letter_06_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_07_animation_fill" xlink:href="#background_letter_07" attributeName="fill" to="#16425B" begin="background_letter_07_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_08_animation_fill" xlink:href="#background_letter_08" attributeName="fill" to="#16425B" begin="background_letter_08_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_09_animation_fill" xlink:href="#background_letter_09" attributeName="fill" to="#16425B" begin="background_letter_09_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_10_animation_fill" xlink:href="#background_letter_10" attributeName="fill" to="#16425B" begin="background_letter_10_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_11_animation_fill" xlink:href="#background_letter_pattern_11" attributeName="visibility" to="visible" begin="background_letter_11_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_12_animation_fill" xlink:href="#background_letter_12" attributeName="fill" to="#16425B" begin="background_letter_12_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_13_animation_fill" xlink:href="#background_letter_13" attributeName="fill" to="#16425B" begin="background_letter_13_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_14_animation_fill" xlink:href="#background_letter_14" attributeName="fill" to="#16425B" begin="background_letter_14_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_15_animation_fill" xlink:href="#background_letter_pattern_15" attributeName="visibility" to="visible" begin="background_letter_15_animation_visibilty.end + 0.1s"/>
+  <set id="background_letter_16_animation_fill" xlink:href="#background_letter_pattern_16" attributeName="visibility" to="visible" begin="background_letter_16_animation_visibilty.end + 0.1s"/>
 
   <set id="background_letter_01_animation_fill_reset" xlink:href="#background_letter_01" attributeName="fill" to="white" begin="background_letter_16_animation_visibilty.end + 3.0s"/>
   <set id="background_letter_02_animation_fill_reset" xlink:href="#background_letter_02" attributeName="fill" to="white" begin="background_letter_16_animation_visibilty.end + 3.0s"/>

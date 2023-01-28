@@ -89,14 +89,9 @@ void setupDirectory(std::filesystem::path current_path,
                     std::size_t current_recursion_depth = 0) {
     assert(recursion_depth != 0);
 
-    if (directories_per_depth == 0) {
-        createFiles(current_path, files_per_directory);
-        return;
-    }
+    createFiles(current_path, files_per_directory);
 
     for (std::size_t dir = 0; dir < directories_per_depth; dir++) {
-        createFiles(current_path, files_per_directory);
-
         const std::string dir_name = "dir_" + std::to_string(dir);
         if (current_recursion_depth < recursion_depth) {
             std::filesystem::create_directory(current_path / dir_name);

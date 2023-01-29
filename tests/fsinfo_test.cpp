@@ -73,10 +73,10 @@ TEST_P(FSInfoTestFileSystemStructures, CorrectInitialized) {
     EXPECT_EQ(fsinfo->getAllFileSystemItems(true, true).size(), total_file_count);
 
     const std::uintmax_t duplicate_count = directories_per_depth > 0 ? files_per_directory : 0;
-    EXPECT_EQ(fsinfo->getDuplicates().size(), duplicate_count);
+    EXPECT_EQ(std::get<1>(fsinfo->getDuplicates()).size(), duplicate_count);
 
-    for (const auto &dup : fsinfo->getDuplicates()) {
-        EXPECT_EQ(dup.size(), total_directory_count + 1);
+    for (const auto &range : std::get<1>(fsinfo->getDuplicates())) {
+        EXPECT_EQ(range, total_directory_count + 1);
     }
 }
 
@@ -131,9 +131,11 @@ TEST_P(FSInfoTestFileSystemStructures, CompareToIdenticalDirectories) {
     const auto duplicates = fsinfo->getDuplicatesFromCompare(&fsinfo_compare);
 
     EXPECT_EQ(duplicates.size(), files_per_directory);
-    EXPECT_EQ(duplicates.size(),
-              total_directory_count > 1 ? fsinfo->getDuplicates().size() : files_per_directory);
-    EXPECT_EQ(fsinfo->getDuplicates().size(), fsinfo_compare.getDuplicates().size());
+    EXPECT_EQ(duplicates.size(), total_directory_count > 1
+                                     ? std::get<1>(fsinfo->getDuplicates()).size()
+                                     : files_per_directory);
+    EXPECT_EQ(std::get<1>(fsinfo->getDuplicates()).size(),
+              std::get<1>(fsinfo_compare.getDuplicates()).size());
 
     if (files_per_directory > 0) {
         for (const auto &dup : duplicates) {
@@ -148,7 +150,8 @@ TEST_P(FSInfoTestFileSystemStructures, CompareToItself) {
     const auto duplicates = fsinfo->getDuplicatesFromCompare(&fsinfo_compare);
 
     EXPECT_EQ(duplicates.size(), directories_per_depth > 0 ? files_per_directory : 0);
-    EXPECT_EQ(fsinfo->getDuplicates().size(), fsinfo_compare.getDuplicates().size());
+    EXPECT_EQ(std::get<1>(fsinfo->getDuplicates()).size(),
+              std::get<1>(fsinfo_compare.getDuplicates()).size());
 
     if (files_per_directory > 0) {
         for (const auto &dup : duplicates) {
@@ -169,10 +172,11 @@ TEST_P(FSInfoTestFileSystemStructures, CompareToOwnSubdirectory) {
     const auto duplicates = fsinfo->getDuplicatesFromCompare(&fsinfo_compare);
 
     EXPECT_EQ(duplicates.size(), files_per_directory);
-    EXPECT_EQ(duplicates.size(),
-              total_directory_count > 1 ? fsinfo->getDuplicates().size() : files_per_directory);
-    EXPECT_EQ(fsinfo_compare.getDuplicates().size(),
-              recursion_depth > 1 ? fsinfo->getDuplicates().size() : 0);
+    EXPECT_EQ(duplicates.size(), total_directory_count > 1
+                                     ? std::get<1>(fsinfo->getDuplicates()).size()
+                                     : files_per_directory);
+    EXPECT_EQ(std::get<1>(fsinfo_compare.getDuplicates()).size(),
+              recursion_depth > 1 ? std::get<1>(fsinfo->getDuplicates()).size() : 0);
 
     if (files_per_directory > 0) {
         for (const auto &dup : duplicates) {

@@ -64,13 +64,14 @@ std::vector<std::size_t> extractDuplicatesAndGetRanges(std::vector<FileSystemIte
     std::vector<std::size_t> ranges{};
 
     for (std::size_t i = 0; i < items.size(); i++) {
-        std::size_t range = i;
-        while (range < items.size() - 1 &&
-               items.at(i)->getHash() == items.at(range + 1)->getHash()) {
-            range++;
+        std::size_t range_end = i;
+        while (range_end < items.size() - 1 &&
+               items.at(i)->getHash() == items.at(range_end + 1)->getHash()) {
+            range_end++;
         }
-        ranges.push_back(range);
-        i += range - i;
+        // +1 because we want to count the start item as well and range shoud start counting with 1
+        ranges.push_back(range_end - i + 1);
+        i += range_end - i;
     }
 
     return ranges;

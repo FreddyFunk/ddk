@@ -86,14 +86,10 @@ std::string getDuplicateListFromCompare(const std::vector<DDK::FileSystemItem *>
 
 std::string FSinfoDuplicateList(const DDK::FileSystemInfo *const fsinfo) {
     std::string result{};
-    const auto [items, ranges] = fsinfo->getDuplicates();
-
-    for (std::size_t range = 0; range < ranges.size(); range++) {
-        for (std::size_t i = 0; i < range; i++) {
-            result += items.at(range + i)->getPathAsString() + "\n";
-        }
+    const auto &[items, ranges] = fsinfo->getDuplicates();
+    for (const auto &item : items) {
+        result += item->getPathAsString() + "\n";
     }
-
     return result;
 }
 

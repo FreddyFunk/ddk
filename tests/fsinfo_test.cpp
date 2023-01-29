@@ -75,7 +75,8 @@ TEST_P(FSInfoTestFileSystemStructures, CorrectInitialized) {
     const std::uintmax_t duplicate_count = directories_per_depth > 0 ? files_per_directory : 0;
     EXPECT_EQ(std::get<1>(fsinfo->getDuplicates()).size(), duplicate_count);
 
-    for (const auto range : std::get<1>(fsinfo->getDuplicates())) {
+    const auto [items, ranges] = fsinfo->getDuplicates();
+    for (const auto range : ranges) {
         EXPECT_EQ(range, total_directory_count + 1);
     }
 }

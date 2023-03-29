@@ -53,10 +53,11 @@ std::vector<FileSystemItem *> FileSystemInfo::getAllFileSystemItems(bool sortedB
     return items;
 }
 
-std::vector<std::vector<FileSystemItem *>> FileSystemInfo::getDuplicates() const {
+std::tuple<std::vector<FileSystemItem *>, std::vector<std::size_t>> FileSystemInfo::getDuplicates()
+    const {
     auto items = getAllFileSystemItems();
-    FILTER::DEDUPLICATION::tagDuplicateBinaries(items);
-    return FILTER::DEDUPLICATION::getDuplicateClustersSorted(items);
+    auto ranges = FILTER::DEDUPLICATION::extractDuplicatesAndGetRanges(items);
+    return {items, ranges};
 }
 
 std::vector<std::vector<FileSystemItem *>> FileSystemInfo::getDuplicatesFromCompare(
@@ -66,7 +67,7 @@ std::vector<std::vector<FileSystemItem *>> FileSystemInfo::getDuplicatesFromComp
     items.insert(items.end(), items_compare.begin(), items_compare.end());
 
     FILTER::COMMON::removeFSItemsWithIdenticalPath(items);
-    FILTER::DEDUPLICATION::tagDuplicateBinaries(items);
+    FILTER::DEDUPLICATION::extractDuplicatesAndGetRanges(items);
     auto duplicates = FILTER::DEDUPLICATION::getDuplicateClustersSorted(items);
     FILTER::DEDUPLICATION::removeDuplicatesNotContainingDuplicatesFromBothPaths(
         duplicates, getRootPath(), compare->getRootPath());

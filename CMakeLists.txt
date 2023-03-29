@@ -4,7 +4,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 project(
   DDK
-  VERSION 2.2.1
+  VERSION 2.2.2
   DESCRIPTION "DeDuplicationKit: Advanced File Storage Deduplication"
   LANGUAGES CXX)
 

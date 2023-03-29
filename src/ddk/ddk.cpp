@@ -181,11 +181,9 @@ int main(int argc, char *argv[]) {
                 }
             }
         } else {
-            const auto duplicates = fsinfo.getDuplicates();
-            for (const auto duplicate : duplicates) {
-                for (std::size_t i = 1; i < duplicate.size(); i++) {
-                    std::filesystem::remove(duplicate.at(i)->getPath());
-                }
+            const auto &[items, ranges] = fsinfo.getDuplicates();
+            for (const auto &item : items) {
+                std::filesystem::remove(item->getPath());
             }
         }
     }

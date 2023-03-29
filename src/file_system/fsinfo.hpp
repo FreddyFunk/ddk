@@ -13,7 +13,7 @@ class FileSystemInfo {
                                                      bool onlyFiles = false) const;
     std::vector<FileSystemItem *> getAllFileSystemItems(bool sortedBySize = false,
                                                         bool onlyFiles = false) const;
-    std::vector<std::vector<FileSystemItem *>> getDuplicates() const;
+    std::tuple<std::vector<FileSystemItem *>, std::vector<std::size_t>> getDuplicates() const;
     std::vector<std::vector<FileSystemItem *>> getDuplicatesFromCompare(
         const FileSystemInfo *const compare) const;
     std::size_t getDirectoriesCount() const;

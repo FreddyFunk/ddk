@@ -1,0 +1,85 @@
+name: Benchmark
+
+on:
+  pull_request:
+    branches: [ "main", "dev**", "release**" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Patch CMakeLists.txt of ddk to rename the executable to  to ddk_dev
+      run: sed -i 's/ddk/ddk_dev/g' src/ddk/CMakeLists.txt && mv src/ddk/ddk.cpp src/ddk/ddk_dev.cpp
+
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DDDK_TESTS=OFF
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      # Build your program with the given configuration
+      run: cmake --build . --config ${{env.BUILD_TYPE}}
+
+    - name: CPack DEB
+      working-directory: ${{github.workspace}}/build
+      run: cpack -G DEB
+
+    - name: Install ddk_dev
+      working-directory: ${{github.workspace}}/_packages
+      run: sudo dpkg -i ddk*.deb
+
+    - name: print ddk_dev version
+      run: ddk_dev --version
+
+    - name: Download latest ddk release
+      uses: robinraju/release-downloader@v1.7
+      with:
+        latest: true
+        fileName: "*amd64.deb"
+    
+    - name: Install latest ddk release
+      run: sudo dpkg -i --force-overwrite *amd64.deb
+
+    - name: Print ddk version
+      run: ddk --version
+
+    - name: Install hyperfine
+      run: wget https://github.com/sharkdp/hyperfine/releases/download/v1.15.0/hyperfine_1.15.0_amd64.deb
+        && sudo dpkg -i hyperfine_1.15.0_amd64.deb
+
+    - name: Benchmark 
+      working-directory: ${{github.workspace}}/benchmark
+      run: ./benchmark.sh
+
+    - name: Render Benchnmark Markdown Template
+      id: template
+      uses: chuhlomin/render-template@v1.4
+      with:
+        template: ${{github.workspace}}/benchmark/reports/benchmark.md
+        vars: |
+          foo: this
+          bar: that
+
+    - name: Find Comment
+      uses: peter-evans/find-comment@v2
+      id: fc
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: 'github-actions[bot]'
+        body-includes: Benchmark Results
+
+    - name: Create or update comment
+      uses: peter-evans/create-or-update-comment@v2
+      with:
+        comment-id: ${{ steps.fc.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        body: ${{ steps.template.outputs.result }}
+        edit-mode: replace

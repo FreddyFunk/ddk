@@ -18,10 +18,10 @@ std::string humanReadableSize(std::uintmax_t size) {
 }
 
 // pass std pair here
-std::string getItemInfo(std::pair<DDK::FileSystemItem *, bool> item, bool fullPath) {
-    std::string itemInfo = item.second ? "[*] " : "[ ] ";
+std::string getItemInfo(DDK::FileSystemItem *item, bool tag, bool fullPath) {
+    std::string itemInfo = tag ? "[*] " : "[ ] ";
 
-    switch (item.first->getError()) {
+    switch (item->getError()) {
     case DDK::FileSystemError::ACCESS_DENIED:
         itemInfo += "ERROR: ACCESS DENIED! ";
         break;
@@ -34,9 +34,9 @@ std::string getItemInfo(std::pair<DDK::FileSystemItem *, bool> item, bool fullPa
     }
 
     if (fullPath) {
-        itemInfo += item.first->getPathAsString();
+        itemInfo += item->getPathAsString();
     } else {
-        itemInfo += item.first->getItemName();
+        itemInfo += item->getItemName();
     }
 
     return itemInfo;
@@ -52,7 +52,7 @@ std::string getDuplicateGroups(
         std::to_string(duplicates.size()) + " x " +
         humanReadableSize(duplicates.front().first->getSizeInBytes()) + "]\n";
     for (const auto duplicate : duplicates) {
-        duplicateInfo += getItemInfo(duplicate, true) + "\n";
+        duplicateInfo += getItemInfo(duplicate.first, duplicate.second, true) + "\n";
     }
 
     return duplicateInfo;
@@ -72,30 +72,6 @@ std::vector<std::pair<DDK::FileSystemItem *, bool>> deletableDuplicates(
     return duplicatesTagged;
 }
 
-std::vector<std::pair<DDK::FileSystemItem *, bool>> deletableDuplicates(
-    std::vector<DDK::FileSystemItem *> duplicates) {
-    DDK::FILTER::COMMON::sortFSitemsByPathLexicographically(duplicates);
-    std::vector<std::pair<DDK::FileSystemItem *, bool>> duplicatesTagged{};
-    // skip first entry of duplicate list since only the remaining entries are duplicates of the
-    // first entry
-    duplicatesTagged.push_back(std::make_pair(duplicates.at(0), false));
-    for (std::size_t i = 1; i < duplicates.size(); i++) {
-        duplicatesTagged.push_back(std::make_pair(duplicates.at(i), true));
-    }
-    return duplicatesTagged;
-}
-
-std::string getDuplicateList(const std::vector<DDK::FileSystemItem *> &duplicates) {
-    std::string duplicateInfo{};
-
-    for (const auto &duplicate : deletableDuplicates(duplicates)) {
-        if (duplicate.second) {
-            duplicateInfo += duplicate.first->getPathAsString() + "\n";
-        }
-    }
-    return duplicateInfo;
-}
-
 std::string getDuplicateListFromCompare(const std::vector<DDK::FileSystemItem *> &duplicates,
                                         const std::filesystem::path &path_compare_root) {
     std::string duplicateInfo{};
@@ -110,12 +86,10 @@ std::string getDuplicateListFromCompare(const std::vector<DDK::FileSystemItem *>
 
 std::string FSinfoDuplicateList(const DDK::FileSystemInfo *const fsinfo) {
     std::string result{};
-    auto duplicates = fsinfo->getDuplicates();
-
-    for (const auto duplicate : duplicates) {
-        result += getDuplicateList(duplicate);
+    const auto &[items, ranges] = fsinfo->getDuplicates();
+    for (const auto &item : items) {
+        result += item->getPathAsString() + "\n";
     }
-
     return result;
 }
 
@@ -144,30 +118,38 @@ std::uint64_t redundant_size(const std::vector<std::vector<DDK::FileSystemItem *
     return redundant_data_size;
 }
 
-std::uint64_t redundant_size(const std::vector<std::vector<DDK::FileSystemItem *>> &duplicates) {
-    std::uint64_t redundant_data_size = 0;
-    for (const auto duplicate : duplicates) {
-        redundant_data_size += (duplicate.size() - 1) * duplicate.front()->getSizeInBytes();
-    }
-    return redundant_data_size;
-}
-
 std::string parseDuplicatesDetailed(
-    const std::vector<std::vector<DDK::FileSystemItem *>> &duplicates) {
+    const std::tuple<std::vector<FileSystemItem *>, std::vector<std::size_t>> &duplicates) {
     std::string result{};
+    const auto &[items, ranges] = duplicates;
 
-    if (duplicates.empty()) {
+    if (items.empty()) {
         return "No duplicates found!\n";
-    } else {
-        result += "Duplicate Groups found: " + std::to_string(duplicates.size()) + "\n";
-        result += "Redundant data: " + humanReadableSize(redundant_size(duplicates)) + "\n\n";
     }
 
-    for (const auto duplicate : duplicates) {
-        result += getDuplicateGroups(deletableDuplicates(duplicate)) + "\n";
+    std::uint64_t redundant_data_size = 0;
+    std::string duplicateInfo{};
+
+    std::size_t range_start = 0;
+    for (std::size_t range = 0; range < ranges.size(); range++) {
+        std::size_t range_end = range_start + ranges.at(range);
+        redundant_data_size += (ranges.at(range) - 1) * items.at(range_start)->getSizeInBytes();
+
+        duplicateInfo +=
+            "Duplicate Group with " + std::to_string(ranges.at(range)) + " duplicates detected: " +
+            humanReadableSize(items.at(range_start)->getSizeInBytes() * ranges.at(range)) + " [" +
+            std::to_string(ranges.at(range)) + " x " +
+            humanReadableSize(items.at(range_start)->getSizeInBytes()) + "]\n";
+
+        duplicateInfo += getItemInfo(items.at(range_start), false, false) + "\n";
+        for (std::size_t i = range_start + 1; i < range_end; i++) {
+            duplicateInfo += getItemInfo(items.at(i), true, false) + "\n";
+        }
+        range_start = range_end;
     }
 
-    return result;
+    return "Duplicate Groups found: " + std::to_string(ranges.size()) + "\n" +
+           "Redundant data: " + humanReadableSize(redundant_data_size) + "\n\n" + result;
 }
 
 std::string parseDuplicatesDetailedCompare(

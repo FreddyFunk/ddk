@@ -1,4 +1,5 @@
-add_executable(ddk ddk.cpp fsinfo_parser.cpp fsinfo_parser.hpp)
+add_executable(ddk ddk.cpp fsinfo_parser.cpp fsinfo_parser.hpp
+                   ${CMAKE_SOURCE_DIR}/resources/icon.rc)
 
 add_executable(${PROJECT_NAME}::ddk ALIAS ddk)
 
